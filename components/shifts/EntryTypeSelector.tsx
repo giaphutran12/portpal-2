@@ -1,0 +1,91 @@
+'use client'
+
+import { format } from 'date-fns'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Briefcase, Heart, Palmtree, Clock, Flag, Moon } from 'lucide-react'
+
+const ENTRY_TYPES = [
+  {
+    id: 'worked',
+    name: 'WORKED',
+    description: 'Log your shift details',
+    icon: Briefcase,
+    route: '/shifts/add/worked',
+  },
+  {
+    id: 'leave',
+    name: 'LEAVE',
+    description: 'Taking care of yourself',
+    icon: Heart,
+    route: '/shifts/add/leave',
+  },
+  {
+    id: 'vacation',
+    name: 'VACATION',
+    description: 'Enjoying time off',
+    icon: Palmtree,
+    route: '/shifts/add/vacation',
+  },
+  {
+    id: 'standby',
+    name: 'STANDBY',
+    description: 'Plugged in but no work',
+    icon: Clock,
+    route: '/shifts/add/standby',
+  },
+  {
+    id: 'stat-holiday',
+    name: 'STAT HOLIDAY',
+    description: 'Public Holiday',
+    icon: Flag,
+    route: '/shifts/add/stat-holiday',
+  },
+  {
+    id: 'day-off',
+    name: 'DAY OFF',
+    description: 'Scheduled rest day',
+    icon: Moon,
+    route: '/shifts/add/day-off',
+  },
+]
+
+export function EntryTypeSelector() {
+  const router = useRouter()
+  const today = new Date()
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-lg font-medium text-muted-foreground">
+          {format(today, 'EEEE, MMMM d, yyyy')}
+        </h2>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {ENTRY_TYPES.map((type) => {
+          const Icon = type.icon
+          return (
+            <Card
+              key={type.id}
+              className="cursor-pointer transition-colors hover:bg-accent/50"
+              onClick={() => router.push(type.route)}
+            >
+              <CardHeader className="flex flex-col items-center space-y-2 p-4 pb-2">
+                <div className="rounded-full bg-primary/10 p-3">
+                  <Icon className="h-6 w-6 text-primary" />
+                </div>
+                <CardTitle className="text-sm font-bold">{type.name}</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0 text-center">
+                <p className="text-xs text-muted-foreground">
+                  {type.description}
+                </p>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,124 @@
+'use client'
+
+import { 
+  addMonths, 
+  eachDayOfInterval, 
+  endOfMonth, 
+  endOfWeek, 
+  format, 
+  isSameDay, 
+  isSameMonth, 
+  parseISO, 
+  startOfMonth, 
+  startOfWeek, 
+  subMonths 
+} from 'date-fns'
+import { useRouter } from 'next/navigation'
+import { CalendarNav } from './CalendarNav'
+import { Shift } from './types'
+import { cn } from '@/lib/utils'
+
+interface MonthlyCalendarProps {
+  currentDate: string
+  shifts: Shift[]
+}
+
+export function MonthlyCalendar({ currentDate, shifts }: MonthlyCalendarProps) {
+  const router = useRouter()
+  const dateObj = parseISO(currentDate)
+  
+  const monthStart = startOfMonth(dateObj)
+  const monthEnd = endOfMonth(monthStart)
+  const calendarStart = startOfWeek(monthStart)
+  const calendarEnd = endOfWeek(monthEnd)
+  
+  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd })
+
+  const handlePrev = () => {
+    const newDate = subMonths(dateObj, 1)
+    router.push(`?date=${format(newDate, 'yyyy-MM-dd')}`)
+  }
+
+  const handleNext = () => {
+    const newDate = addMonths(dateObj, 1)
+    router.push(`?date=${format(newDate, 'yyyy-MM-dd')}`)
+  }
+
+  const handleDayClick = (day: Date) => {
+    // Navigate to weekly view for this date to show details
+    router.push(`/index/shifts/weekly?date=${format(day, 'yyyy-MM-dd')}`)
+  }
+
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+  return (
+    <div className="space-y-6">
+      <CalendarNav 
+        onPrev={handlePrev} 
+        onNext={handleNext} 
+        label={format(dateObj, 'MMMM yyyy')} 
+      />
+
+      <div className="border rounded-lg overflow-hidden">
+        {/* Weekday Headers */}
+        <div className="grid grid-cols-7 bg-muted border-b">
+          {weekDays.map(day => (
+            <div key={day} className="p-2 text-center text-xs font-semibold text-muted-foreground uppercase">
+              {day}
+            </div>
+          ))}
+        </div>
+
+        {/* Days Grid */}
+        <div className="grid grid-cols-7 bg-background">
+          {days.map((day) => {
+            const dayShifts = shifts.filter(s => isSameDay(parseISO(s.date), day))
+            const isCurrentMonth = isSameMonth(day, monthStart)
+            const isToday = isSameDay(day, new Date())
+            
+            return (
+              <div
+                key={day.toISOString()}
+                onClick={() => handleDayClick(day)}
+                className={cn(
+                  "min-h-[100px] p-2 border-b border-r relative cursor-pointer hover:bg-accent/50 transition-colors",
+                  !isCurrentMonth && "bg-muted/30 text-muted-foreground",
+                  // Remove right border for last column
+                  // Actually grid handles layout, but borders might double up. 
+                  // Tailwind 'divide' or standard border logic is simpler. 
+                  // Let's just use standard borders and rely on overflow-hidden container.
+                )}
+              >
+                <div className="flex justify-between items-start">
+                  <span className={cn(
+                    "text-sm font-medium h-6 w-6 flex items-center justify-center rounded-full",
+                    isToday && "bg-primary text-primary-foreground"
+                  )}>
+                    {format(day, 'd')}
+                  </span>
+                </div>
+
+                <div className="mt-1 space-y-1">
+                  {dayShifts.map(shift => (
+                    <div 
+                      key={shift.id} 
+                      className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary truncate font-medium"
+                      title={`${shift.entry_type} - ${shift.job || 'No Job'}`}
+                    >
+                      {shift.entry_type}
+                    </div>
+                  ))}
+                  {dayShifts.length > 2 && (
+                    <div className="text-[10px] text-muted-foreground pl-1">
+                      + {dayShifts.length - 2} more
+                    </div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
