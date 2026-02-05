@@ -105,13 +105,52 @@ export async function POST(request: Request) {
     const pointsEarned = calculatePoints(totalPay)
     console.log(`${LOG_PREFIX} POST - Points earned: ${pointsEarned}`)
 
+    // Handle stat_holiday field mapping
+    let holidayName: string | null = null
+    let qualifyingDaysNum: number | null = null
+    
+    if (shiftData.entry_type === 'stat_holiday') {
+      // Look up holiday name from holiday_id
+      if (shiftData.holiday_id) {
+        const { data: holidayData } = await supabase
+          .from('holidays')
+          .select('name')
+          .eq('id', shiftData.holiday_id)
+          .single()
+        
+        if (holidayData) {
+          holidayName = holidayData.name
+          console.log(`${LOG_PREFIX} POST - Holiday name lookup: ${holidayName}`)
+        }
+      }
+      
+      // Convert qualifying_days string to number
+      if (shiftData.qualifying_days) {
+        const qd = String(shiftData.qualifying_days)
+        if (qd === '15+' || qd.startsWith('15')) {
+          qualifyingDaysNum = 15
+        } else if (qd === '1-14' || qd.includes('14')) {
+          qualifyingDaysNum = 14
+        } else {
+          qualifyingDaysNum = parseInt(qd) || null
+        }
+        console.log(`${LOG_PREFIX} POST - Qualifying days: ${qd} -> ${qualifyingDaysNum}`)
+      }
+    }
+
+    // Build insert data, excluding holiday_id (not a DB column)
+    const { holiday_id, ...shiftDataWithoutHolidayId } = shiftData as typeof shiftData & { holiday_id?: string }
+    
     const insertData = {
       user_id: user.id,
-      ...shiftData,
+      ...shiftDataWithoutHolidayId,
       rate,
       overtime_rate: overtimeRate,
       total_pay: totalPay,
       points_earned: pointsEarned,
+      // Override with mapped values for stat_holiday
+      ...(holidayName && { holiday: holidayName }),
+      ...(qualifyingDaysNum !== null && { qualifying_days: qualifyingDaysNum }),
     }
     console.log(`${LOG_PREFIX} POST - Insert data:`, JSON.stringify(insertData, null, 2))
 

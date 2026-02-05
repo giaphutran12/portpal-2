@@ -47,7 +47,7 @@ mcp__nia__context(
 - Reduces hallucination risk for API/library details
 
 **NEVER rely on training knowledge for:**
-- Library versions (e.g., "Next.js 14" might be outdated - currently Next.js 16)
+- Library versions (e.g., "Next.js 14" IS outdated - currently Next.js 16)
 - API signatures that may have changed
 - Framework features that evolve rapidly
 
@@ -252,6 +252,71 @@ main()
 **NEVER try:** `supabase db execute --sql "..."` (doesn't exist)
 - Reference data (jobs, locations, holidays - all under 1000)
 - Single record lookups by ID
+
+---
+
+## Teaching Mode: Stack Traces & Debugging
+
+**When errors occur, ALWAYS explain stack traces to teach the user debugging skills.**
+
+### How to Read a Stack Trace (Simple → Technical)
+
+#### 1. The Simple Version
+A stack trace is like a "breadcrumb trail" showing exactly where the error happened and how the code got there.
+
+```
+TypeError: Cannot read properties of undefined (reading 'map')
+    at POST (app/api/shifts/route.ts:74:46)
+```
+
+**Read it like this:**
+- **Line 1**: What broke → "Tried to call .map() on something that doesn't exist"
+- **Line 2**: Where it broke → "In the POST function, file route.ts, line 74, character 46"
+
+#### 2. The Technical Version
+```
+TypeError: Cannot read properties of undefined (reading 'map')
+    at POST (app/api/shifts/route.ts:74:46)
+    at async handleRequest (next/server.js:123:15)
+    at async NextServer.handle (server.js:456:20)
+```
+
+**Components:**
+| Part | Meaning |
+|------|---------|
+| `TypeError` | Error type (TypeError, ReferenceError, SyntaxError, etc.) |
+| `Cannot read properties of undefined` | The actual problem |
+| `(reading 'map')` | What operation failed |
+| `at POST` | Function name where error occurred |
+| `app/api/shifts/route.ts` | File path |
+| `:74:46` | Line number : Column number |
+
+**Reading order (top to bottom):**
+1. **Top = where it crashed** (most useful)
+2. **Middle = how it got there** (the call chain)
+3. **Bottom = where it started** (often framework code, less useful)
+
+#### 3. Common Error Types
+
+| Error Type | What It Means | Common Cause |
+|------------|---------------|--------------|
+| `TypeError` | Wrong type or undefined | Accessing property on null/undefined |
+| `ReferenceError` | Variable doesn't exist | Typo in variable name, forgot to import |
+| `SyntaxError` | Code grammar is wrong | Missing bracket, comma, quote |
+| `RangeError` | Value out of allowed range | Infinite recursion, invalid array length |
+
+#### 4. Debugging Workflow
+
+```
+1. READ the error message (what broke)
+2. FIND the line number (where it broke)
+3. LOOK at that exact line in your code
+4. TRACE backwards - what variable is undefined? Why?
+5. ADD console.log() before the error line to inspect values
+6. FIX the root cause, not the symptom
+```
+
+**Agent Rule:** When showing errors to the user, ALWAYS break down the stack trace using this format.
 
 ---
 

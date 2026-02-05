@@ -23,7 +23,8 @@ export const createShiftSchema = z.object({
   leave_type: z.enum(leaveTypes).optional(),
   will_receive_paystub: z.boolean().optional(),
   holiday: z.string().nullish(),
-  qualifying_days: z.number().optional(),
+  holiday_id: z.string().uuid().nullish(),
+  qualifying_days: z.union([z.string(), z.number()]).nullish(),
   notes: z.string().nullish(),
 })
 
