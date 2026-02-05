@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, RotateCcw } from 'lucide-react'
 import { toast } from 'sonner'
 import { use } from 'react'
 
@@ -43,6 +43,7 @@ export default function EditShiftPage({ params }: EditShiftPageProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [shift, setShift] = useState<Shift | null>(null)
+  const originalShift = useRef<Shift | null>(null)
 
   useEffect(() => {
     async function fetchShift() {
@@ -51,6 +52,7 @@ export default function EditShiftPage({ params }: EditShiftPageProps) {
         if (!res.ok) throw new Error('Failed to fetch shift')
         const data = await res.json()
         setShift(data)
+        originalShift.current = { ...data }
       } catch (error) {
         toast.error('Failed to load shift')
         router.push('/index/shifts/monthly')
@@ -60,6 +62,13 @@ export default function EditShiftPage({ params }: EditShiftPageProps) {
     }
     fetchShift()
   }, [id, router])
+
+  function handleReset() {
+    if (originalShift.current) {
+      setShift({ ...originalShift.current })
+      toast.success('Reset to original values')
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -220,6 +229,10 @@ export default function EditShiftPage({ params }: EditShiftPageProps) {
           </Card>
 
           <div className="flex gap-3 mt-4">
+            <Button type="button" variant="outline" onClick={handleReset}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Reset
+            </Button>
             <Button type="button" variant="outline" className="flex-1" asChild>
               <Link href={`/shifts/${id}`}>Cancel</Link>
             </Button>
