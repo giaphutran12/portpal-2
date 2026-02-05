@@ -350,13 +350,13 @@ export default function EditShiftPage({ params }: EditShiftPageProps) {
                             </Select>
                         </div>
 
-                        {selectedJob?.has_subjobs && (
+                        {selectedJob?.has_subjobs && selectedJob.subjobs.filter(s => s).length > 0 && (
                             <div className="space-y-2">
                                 <Label>Sub-job</Label>
                                 <Select value={shift.subjob || ''} onValueChange={(v) => updateField('subjob', v)}>
                                     <SelectTrigger><SelectValue placeholder="Select sub-job" /></SelectTrigger>
                                     <SelectContent>
-                                        {selectedJob.subjobs.map(s => (
+                                        {selectedJob.subjobs.filter(s => s).map(s => (
                                             <SelectItem key={s} value={s}>{s}</SelectItem>
                                         ))}
                                     </SelectContent>
