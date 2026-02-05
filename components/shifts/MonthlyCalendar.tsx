@@ -49,74 +49,76 @@ export function MonthlyCalendar({ currentDate, shifts }: MonthlyCalendarProps) {
     router.push(`/index/shifts/weekly?date=${format(day, 'yyyy-MM-dd')}`)
   }
 
-  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  // Short weekday names for mobile, full for desktop
+  const weekDaysFull = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+  const weekDaysShort = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <CalendarNav 
         onPrev={handlePrev} 
         onNext={handleNext} 
         label={format(dateObj, 'MMMM yyyy')} 
       />
 
-      <div className="border rounded-lg overflow-hidden">
-        {/* Weekday Headers */}
-        <div className="grid grid-cols-7 bg-muted border-b">
-          {weekDays.map(day => (
-            <div key={day} className="p-2 text-center text-xs font-semibold text-muted-foreground uppercase">
-              {day}
-            </div>
-          ))}
-        </div>
-
-        {/* Days Grid */}
-        <div className="grid grid-cols-7 bg-background">
-          {days.map((day) => {
-            const dayShifts = shifts.filter(s => isSameDay(parseISO(s.date), day))
-            const isCurrentMonth = isSameMonth(day, monthStart)
-            const isToday = isSameDay(day, new Date())
-            
-            return (
-              <div
-                key={day.toISOString()}
-                onClick={() => handleDayClick(day)}
-                className={cn(
-                  "min-h-[100px] p-2 border-b border-r relative cursor-pointer hover:bg-accent/50 transition-colors",
-                  !isCurrentMonth && "bg-muted/30 text-muted-foreground",
-                  // Remove right border for last column
-                  // Actually grid handles layout, but borders might double up. 
-                  // Tailwind 'divide' or standard border logic is simpler. 
-                  // Let's just use standard borders and rely on overflow-hidden container.
-                )}
-              >
-                <div className="flex justify-between items-start">
-                  <span className={cn(
-                    "text-sm font-medium h-6 w-6 flex items-center justify-center rounded-full",
-                    isToday && "bg-primary text-primary-foreground"
-                  )}>
-                    {format(day, 'd')}
-                  </span>
-                </div>
-
-                <div className="mt-1 space-y-1">
-                  {dayShifts.map(shift => (
-                    <div 
-                      key={shift.id} 
-                      className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary truncate font-medium"
-                      title={`${shift.entry_type} - ${shift.job || 'No Job'}`}
-                    >
-                      {shift.entry_type}
-                    </div>
-                  ))}
-                  {dayShifts.length > 2 && (
-                    <div className="text-[10px] text-muted-foreground pl-1">
-                      + {dayShifts.length - 2} more
-                    </div>
-                  )}
-                </div>
+      <div className="border rounded-lg overflow-x-auto">
+        <div className="min-w-[320px]">
+          {/* Weekday Headers */}
+          <div className="grid grid-cols-7 bg-muted border-b">
+            {weekDaysFull.map((day, i) => (
+              <div key={day} className="p-1 sm:p-2 text-center text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase">
+                <span className="hidden sm:inline">{day}</span>
+                <span className="sm:hidden">{weekDaysShort[i]}</span>
               </div>
-            )
-          })}
+            ))}
+          </div>
+
+          {/* Days Grid */}
+          <div className="grid grid-cols-7 bg-background">
+            {days.map((day) => {
+              const dayShifts = shifts.filter(s => isSameDay(parseISO(s.date), day))
+              const isCurrentMonth = isSameMonth(day, monthStart)
+              const isToday = isSameDay(day, new Date())
+              
+              return (
+                <div
+                  key={day.toISOString()}
+                  onClick={() => handleDayClick(day)}
+                  className={cn(
+                    "min-h-[60px] sm:min-h-[100px] p-1 sm:p-2 border-b border-r relative cursor-pointer hover:bg-accent/50 transition-colors",
+                    !isCurrentMonth && "bg-muted/30 text-muted-foreground",
+                  )}
+                >
+                  <div className="flex justify-between items-start">
+                    <span className={cn(
+                      "text-xs sm:text-sm font-medium h-5 w-5 sm:h-6 sm:w-6 flex items-center justify-center rounded-full",
+                      isToday && "bg-primary text-primary-foreground"
+                    )}>
+                      {format(day, 'd')}
+                    </span>
+                  </div>
+
+                  <div className="mt-0.5 sm:mt-1 space-y-0.5 sm:space-y-1">
+                    {dayShifts.slice(0, 1).map(shift => (
+                      <div 
+                        key={shift.id} 
+                        className="text-[8px] sm:text-[10px] px-1 sm:px-1.5 py-0.5 rounded bg-primary/10 text-primary truncate font-medium"
+                        title={`${shift.entry_type} - ${shift.job || 'No Job'}`}
+                      >
+                        <span className="hidden sm:inline">{shift.entry_type}</span>
+                        <span className="sm:hidden">{shift.entry_type.charAt(0)}</span>
+                      </div>
+                    ))}
+                    {dayShifts.length > 1 && (
+                      <div className="text-[8px] sm:text-[10px] text-muted-foreground pl-0.5 sm:pl-1">
+                        +{dayShifts.length - 1}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </div>
       </div>
     </div>

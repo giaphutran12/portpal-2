@@ -55,30 +55,30 @@ export function WeeklyCalendar({ currentDate, shifts }: WeeklyCalendarProps) {
   return (
     <div className="space-y-6">
       {/* Header Stats */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Shifts</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 sm:p-4 pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Shifts</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalShifts}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{totalShifts}</div>
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Hours</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 sm:p-4 pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Hours</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalHours}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{totalHours}</div>
             <p className="text-xs text-muted-foreground">Hours not in DB yet</p> 
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Earned</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 sm:p-4 pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Earned</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${totalEarned.toFixed(2)}</div>
+          <CardContent className="p-3 sm:p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold">${totalEarned.toFixed(2)}</div>
           </CardContent>
         </Card>
       </div>
@@ -93,10 +93,10 @@ export function WeeklyCalendar({ currentDate, shifts }: WeeklyCalendarProps) {
             />
         </div>
         
-        <Button asChild className="shrink-0">
+        <Button asChild className="shrink-0 w-full sm:w-auto">
           <Link href="/shifts/add">
             <Plus className="mr-2 h-4 w-4" />
-            Add Shift
+            <span className="sm:inline">Add Shift</span>
           </Link>
         </Button>
       </div>

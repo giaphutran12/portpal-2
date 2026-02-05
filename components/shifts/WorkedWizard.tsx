@@ -99,41 +99,57 @@ export function WorkedWizard({ jobs, locations }: WorkedWizardProps) {
   }
 
   async function handleSubmit() {
-    if (!payCalc) return
+    if (!payCalc) {
+      console.error('[WorkedWizard] Cannot submit: payCalc is null')
+      return
+    }
+
+    const payload = {
+      entry_type: 'worked',
+      date: format(date, 'yyyy-MM-dd'),
+      job,
+      subjob: subjob || null,
+      location,
+      shift_type: shiftType,
+      hours,
+      rate: payCalc.regularRate,
+      overtime_hours: overtimeHours,
+      overtime_rate: payCalc.overtimeRate,
+      travel_hours: includeTravel ? travelHours : 0,
+      meal: includeMeal,
+      foreman: foreman || null,
+      vessel: vessel || null,
+      notes: notes || null,
+      total_pay: payCalc.totalPay,
+    }
+
+    console.log('[WorkedWizard] Submitting shift:', JSON.stringify(payload, null, 2))
 
     setLoading(true)
     try {
       const res = await fetch('/api/shifts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          entry_type: 'worked',
-          date: format(date, 'yyyy-MM-dd'),
-          job,
-          subjob: subjob || null,
-          location,
-          shift_type: shiftType,
-          hours,
-          rate: payCalc.regularRate,
-          overtime_hours: overtimeHours,
-          overtime_rate: payCalc.overtimeRate,
-          travel_hours: includeTravel ? travelHours : 0,
-          meal: includeMeal,
-          foreman: foreman || null,
-          vessel: vessel || null,
-          notes: notes || null,
-          total_pay: payCalc.totalPay,
-        }),
+        body: JSON.stringify(payload),
       })
 
+      const data = await res.json()
+      console.log('[WorkedWizard] Response status:', res.status)
+      console.log('[WorkedWizard] Response data:', JSON.stringify(data, null, 2))
+
       if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'Failed to create shift')
+        const errorMsg = data.error || data.message || 'Failed to create shift'
+        console.error('[WorkedWizard] Error:', errorMsg)
+        if (data.details) {
+          console.error('[WorkedWizard] Validation details:', JSON.stringify(data.details, null, 2))
+        }
+        throw new Error(errorMsg)
       }
 
       toast.success('Shift added successfully!')
-      router.push('/shifts')
+      router.push('/index/shifts/weekly')
     } catch (error) {
+      console.error('[WorkedWizard] Submit error:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to add shift')
     } finally {
       setLoading(false)
@@ -182,7 +198,7 @@ export function WorkedWizard({ jobs, locations }: WorkedWizardProps) {
               </Select>
             </div>
 
-            {selectedJob?.has_subjobs && selectedJob.subjobs.length > 0 && (
+            {selectedJob?.has_subjobs && selectedJob.subjobs.filter(s => s).length > 0 && (
               <div className="space-y-2">
                 <Label>Sub-type</Label>
                 <Select value={subjob} onValueChange={setSubjob}>
@@ -190,9 +206,9 @@ export function WorkedWizard({ jobs, locations }: WorkedWizardProps) {
                     <SelectValue placeholder="Select sub-type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {selectedJob.subjobs.map((s) => (
+                    {selectedJob.subjobs.filter(s => s).map((s) => (
                       <SelectItem key={s} value={s}>
-                        {s || '(None)'}
+                        {s}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -229,16 +245,17 @@ export function WorkedWizard({ jobs, locations }: WorkedWizardProps) {
               <div className="grid grid-cols-3 gap-2">
                 {(['day', 'night', 'graveyard'] as const).map((type) => {
                   const Icon = SHIFT_TYPE_ICONS[type]
+                  const label = type === 'graveyard' ? 'grave' : type
                   return (
                     <Button
                       key={type}
                       type="button"
                       variant={shiftType === type ? 'default' : 'outline'}
-                      className="flex flex-col items-center py-4"
+                      className="flex flex-col items-center py-3 px-2 h-auto min-w-0 whitespace-normal"
                       onClick={() => setShiftType(type)}
                     >
-                      <Icon className="h-6 w-6 mb-1" />
-                      <span className="text-xs capitalize">{type}</span>
+                      <Icon className="h-5 w-5 mb-1 shrink-0" />
+                      <span className="text-xs capitalize leading-tight">{label}</span>
                     </Button>
                   )
                 })}
@@ -353,18 +370,18 @@ export function WorkedWizard({ jobs, locations }: WorkedWizardProps) {
         </Card>
       )}
 
-      <div className="flex gap-2 mt-6">
+      <div className="flex gap-3 mt-6">
         {step > 1 && (
-          <Button variant="outline" onClick={() => setStep(step - 1)} className="flex-1">
+          <Button variant="outline" onClick={() => setStep(step - 1)} className="flex-1 min-w-0">
             Back
           </Button>
         )}
         {step < 3 ? (
-          <Button onClick={() => setStep(step + 1)} disabled={!canProceed()} className="flex-1">
+          <Button onClick={() => setStep(step + 1)} disabled={!canProceed()} className="flex-1 min-w-0">
             Next
           </Button>
         ) : (
-          <Button onClick={handleSubmit} disabled={loading} className="flex-1">
+          <Button onClick={handleSubmit} disabled={loading} className="flex-1 min-w-0">
             {loading ? 'Adding...' : 'Add Shift'}
           </Button>
         )}

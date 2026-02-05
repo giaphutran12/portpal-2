@@ -62,7 +62,7 @@ export function EntryTypeSelector() {
         </h2>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         {ENTRY_TYPES.map((type) => {
           const Icon = type.icon
           return (
@@ -71,14 +71,14 @@ export function EntryTypeSelector() {
               className="cursor-pointer transition-colors hover:bg-accent/50"
               onClick={() => router.push(type.route)}
             >
-              <CardHeader className="flex flex-col items-center space-y-2 p-4 pb-2">
-                <div className="rounded-full bg-primary/10 p-3">
-                  <Icon className="h-6 w-6 text-primary" />
+              <CardHeader className="flex flex-col items-center space-y-2 p-3 sm:p-4 pb-2">
+                <div className="rounded-full bg-primary/10 p-2 sm:p-3">
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
-                <CardTitle className="text-sm font-bold">{type.name}</CardTitle>
+                <CardTitle className="text-xs sm:text-sm font-bold text-center">{type.name}</CardTitle>
               </CardHeader>
-              <CardContent className="p-4 pt-0 text-center">
-                <p className="text-xs text-muted-foreground">
+              <CardContent className="p-3 sm:p-4 pt-0 text-center">
+                <p className="text-xs text-muted-foreground line-clamp-2">
                   {type.description}
                 </p>
               </CardContent>

@@ -7,9 +7,9 @@ export const leaveTypes = ['sick_leave', 'personal_leave', 'parental_leave'] as 
 export const createShiftSchema = z.object({
   entry_type: z.enum(entryTypes),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  job: z.string().optional(),
-  subjob: z.string().optional(),
-  location: z.string().optional(),
+  job: z.string().nullish(),
+  subjob: z.string().nullish(),
+  location: z.string().nullish(),
   shift_type: z.enum(shiftTypes).optional(),
   hours: z.number().min(0).max(24).optional(),
   rate: z.number().min(0).optional(),
@@ -17,14 +17,14 @@ export const createShiftSchema = z.object({
   overtime_rate: z.number().min(0).optional(),
   travel_hours: z.number().min(0).max(24).optional(),
   meal: z.boolean().optional(),
-  foreman: z.string().optional(),
-  vessel: z.string().optional(),
+  foreman: z.string().nullish(),
+  vessel: z.string().nullish(),
   total_pay: z.number().min(0).optional(),
   leave_type: z.enum(leaveTypes).optional(),
   will_receive_paystub: z.boolean().optional(),
-  holiday: z.string().optional(),
+  holiday: z.string().nullish(),
   qualifying_days: z.number().optional(),
-  notes: z.string().optional(),
+  notes: z.string().nullish(),
 })
 
 export const updateShiftSchema = createShiftSchema.partial()
