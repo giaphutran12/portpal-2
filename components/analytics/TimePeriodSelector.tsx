@@ -41,7 +41,7 @@ export function TimePeriodSelector({
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
       <Select value={period} onValueChange={(value) => setPeriod(value as PeriodType)}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Select period" />
         </SelectTrigger>
         <SelectContent>
@@ -55,9 +55,9 @@ export function TimePeriodSelector({
         </SelectContent>
       </Select>
 
-      <div className="flex gap-2 items-center">
+      <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:items-center">
         <DatePicker date={startDate} setDate={setStartDate} placeholder="Start Date" />
-        <span className="text-muted-foreground">-</span>
+        <span className="text-muted-foreground hidden sm:inline">-</span>
         <DatePicker date={endDate} setDate={setEndDate} placeholder="End Date" />
       </div>
     </div>
@@ -71,7 +71,7 @@ function DatePicker({ date, setDate, placeholder }: { date: Date | undefined, se
         <Button
           variant={"outline"}
           className={cn(
-            "w-[150px] justify-start text-left font-normal",
+            "w-full sm:w-[150px] justify-start text-left font-normal",
             !date && "text-muted-foreground"
           )}
         >

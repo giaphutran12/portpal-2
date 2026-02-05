@@ -325,6 +325,17 @@ TypeError: Cannot read properties of undefined (reading 'map')
 **Project:** PortPal - Shift tracking app for ILWU longshoremen
 **Current Phase:** Documentation of existing Bubble.io app for Next.js + Supabase rebuild
 **Primary Documentation:** `.sisyphus/drafts/portpal-app-documentation.md`
+**Working Directory:** `/Users/edwardtran/BLI/veetesh's stuff/portpal-2/portpal-2-next/`
+**GitHub Repo:** `giaphutran12/portpal-2`
+
+### Test Credentials (Dev Environment)
+
+| Field | Value |
+|-------|-------|
+| Email | `test@portpal.dev` |
+| Password | `testpassword123` |
+
+**Dev Server:** `http://localhost:3000`
 
 ---
 

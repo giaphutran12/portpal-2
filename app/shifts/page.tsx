@@ -36,9 +36,9 @@ export default async function ShiftsPage() {
           shifts.map((shift) => (
             <Card key={shift.id}>
               <CardContent className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <div className="font-medium capitalize">{shift.entry_type}</div>
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium capitalize">{shift.entry_type.replace('_', ' ')}</div>
                     <div className="text-sm text-muted-foreground">
                       {format(new Date(shift.date), 'PPP')}
                     </div>
@@ -50,9 +50,17 @@ export default async function ShiftsPage() {
                     {shift.location && (
                       <div className="text-sm text-muted-foreground">{shift.location}</div>
                     )}
+                    {shift.holiday && (
+                      <div className="text-sm">{shift.holiday}</div>
+                    )}
+                    {shift.notes && (
+                      <div className="text-sm text-muted-foreground mt-1 line-clamp-1">
+                        {shift.notes}
+                      </div>
+                    )}
                   </div>
-                  {shift.total_pay && (
-                    <div className="text-lg font-bold">${shift.total_pay.toFixed(2)}</div>
+                  {shift.total_pay && shift.total_pay > 0 && (
+                    <div className="text-lg font-bold shrink-0">${shift.total_pay.toFixed(2)}</div>
                   )}
                 </div>
               </CardContent>
