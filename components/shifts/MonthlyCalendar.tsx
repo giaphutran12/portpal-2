@@ -14,9 +14,12 @@ import {
   subMonths 
 } from 'date-fns'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import Link from 'next/link'
 import { CalendarNav } from './CalendarNav'
 import { Shift } from './types'
 import { cn } from '@/lib/utils'
+import { Card, CardContent } from '@/components/ui/card'
 
 interface MonthlyCalendarProps {
   currentDate: string
@@ -26,6 +29,7 @@ interface MonthlyCalendarProps {
 export function MonthlyCalendar({ currentDate, shifts }: MonthlyCalendarProps) {
   const router = useRouter()
   const dateObj = parseISO(currentDate)
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   
   const monthStart = startOfMonth(dateObj)
   const monthEnd = endOfMonth(monthStart)
@@ -45,8 +49,7 @@ export function MonthlyCalendar({ currentDate, shifts }: MonthlyCalendarProps) {
   }
 
   const handleDayClick = (day: Date) => {
-    // Navigate to weekly view for this date to show details
-    router.push(`/index/shifts/weekly?date=${format(day, 'yyyy-MM-dd')}`)
+    setSelectedDate(day)
   }
 
   // Short weekday names for mobile, full for desktop
@@ -121,6 +124,54 @@ export function MonthlyCalendar({ currentDate, shifts }: MonthlyCalendarProps) {
           </div>
         </div>
       </div>
+
+      {/* Selected Day Shifts Section */}
+      {selectedDate && (
+        <div className="mt-6 space-y-3">
+          <h3 className="text-lg font-semibold">
+            {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+          </h3>
+          {(() => {
+            const dayShifts = shifts.filter(s => isSameDay(parseISO(s.date), selectedDate))
+            if (dayShifts.length === 0) {
+              return (
+                <Card>
+                  <CardContent className="p-4 text-center text-muted-foreground">
+                    No shifts logged for this day
+                  </CardContent>
+                </Card>
+              )
+            }
+            return dayShifts.map(shift => (
+              <Link key={shift.id} href={`/shifts/${shift.id}`}>
+                <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="font-medium capitalize">{shift.entry_type.replace('_', ' ')}</div>
+                        {shift.job && (
+                          <div className="text-sm text-muted-foreground">
+                            {shift.job}{shift.subjob && ` - ${shift.subjob}`}
+                          </div>
+                        )}
+                        {shift.location && (
+                          <div className="text-sm text-muted-foreground">{shift.location}</div>
+                        )}
+                        {shift.holiday && (
+                          <div className="text-sm text-muted-foreground">{shift.holiday}</div>
+                        )}
+                      </div>
+                      {shift.total_pay && shift.total_pay > 0 && (
+                        <div className="text-lg font-bold">${shift.total_pay.toFixed(2)}</div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))
+          })()}
+        </div>
+      )}
     </div>
   )
 }

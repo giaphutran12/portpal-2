@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
 
 export default function ShiftsIndexPage() {
-  redirect('/index/shifts/weekly')
+  redirect('/index/shifts/monthly')
 }
