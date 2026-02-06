@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { WorkedWizard } from '@/components/shifts/WorkedWizard'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export default async function AddWorkedShiftPage() {
   const supabase = await createClient()
@@ -8,23 +9,29 @@ export default async function AddWorkedShiftPage() {
 
   if (!user) redirect('/signin')
 
-  const { data: jobs } = await supabase
-    .from('jobs')
-    .select('*')
-    .order('name')
+  const jobs = await fetchAllRows<any>(
+    supabase
+      .from('jobs')
+      .select('*')
+      .order('name')
+  )
 
-  const { data: subjobs } = await supabase
-    .from('subjobs')
-    .select('*')
+  const subjobs = await fetchAllRows<any>(
+    supabase
+      .from('subjobs')
+      .select('*')
+  )
 
-  const { data: locations } = await supabase
-    .from('locations')
-    .select('*')
-    .order('name')
+  const locations = await fetchAllRows<any>(
+    supabase
+      .from('locations')
+      .select('*')
+      .order('name')
+  )
 
-  const jobsWithSubjobs = (jobs || []).map((job) => ({
+  const jobsWithSubjobs = jobs.map((job) => ({
     ...job,
-    subjobs: (subjobs || []).filter((s) => s.job_id === job.id).map((s) => s.name),
+    subjobs: subjobs.filter((s) => s.job_id === job.id).map((s) => s.name),
   }))
 
   return (
@@ -32,7 +39,7 @@ export default async function AddWorkedShiftPage() {
       <div className="p-4 border-b">
         <h1 className="text-xl font-bold text-center">Add WORKED Shift</h1>
       </div>
-      <WorkedWizard jobs={jobsWithSubjobs} locations={locations || []} />
+      <WorkedWizard jobs={jobsWithSubjobs} locations={locations} />
     </div>
   )
 }

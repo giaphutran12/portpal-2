@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { PostCard } from '@/components/posts/PostCard'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export default async function PostsPage() {
   const supabase = await createClient()
@@ -10,11 +11,13 @@ export default async function PostsPage() {
     redirect('/signin')
   }
 
-  const { data: posts } = await supabase
-    .from('posts')
-    .select('*')
-    .eq('is_published', true)
-    .order('published_at', { ascending: false })
+  const posts = await fetchAllRows<any>(
+    supabase
+      .from('posts')
+      .select('*')
+      .eq('is_published', true)
+      .order('published_at', { ascending: false })
+  )
 
   return (
     <div className="min-h-screen bg-background">

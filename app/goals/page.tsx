@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { GoalCard } from '@/components/goals/GoalCard'
 import { Plus, Target } from 'lucide-react'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export default async function GoalsPage() {
   const supabase = await createClient()
@@ -11,11 +12,13 @@ export default async function GoalsPage() {
 
   if (!user) redirect('/signin')
 
-  const { data: goals } = await supabase
-    .from('goals')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+  const goals = await fetchAllRows<any>(
+    supabase
+      .from('goals')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+  )
 
   return (
     <div className="min-h-screen bg-background">

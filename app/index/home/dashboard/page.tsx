@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { DashboardClient } from '@/components/dashboard/DashboardClient'
 import { startOfWeek, endOfWeek, subWeeks, format, isAfter, isBefore } from 'date-fns'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -21,19 +22,22 @@ export default async function DashboardPage() {
   const fiscalEnd = '2027-01-03'
   const queryStart = '2025-12-01' 
 
-  const { data: shifts } = await supabase
-    .from('shifts')
-    .select('*')
-    .eq('user_id', user.id)
-    .gte('date', queryStart)
-    .order('date', { ascending: false })
+  // Fetch all shifts with pagination (could exceed 1000 for full fiscal year)
+  const allShifts = await fetchAllRows<any>(
+    supabase
+      .from('shifts')
+      .select('*')
+      .eq('user_id', user.id)
+      .gte('date', queryStart)
+      .order('date', { ascending: false })
+  )
 
+  // Holidays table is small (< 1000 rows), no pagination needed
   const { data: holidays } = await supabase
     .from('holidays')
     .select('*')
     .order('date', { ascending: true })
 
-  const allShifts = shifts || []
   const allHolidays = holidays || []
 
   const now = new Date()
@@ -102,17 +106,17 @@ export default async function DashboardPage() {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
   const sickLeave = {
-    total: profile?.sick_days_total || 5,
+    total: profile?.sick_days_available || 5,
     used: profile?.sick_days_used || 0,
-    validityStart: new Date(profile?.sick_validity_start || new Date().getFullYear(), 0, 1),
-    validityEnd: new Date(profile?.sick_validity_end || new Date().getFullYear(), 11, 31)
+    validityStart: profile?.sick_leave_start ? new Date(profile.sick_leave_start) : new Date(new Date().getFullYear(), 0, 1),
+    validityEnd: profile?.sick_leave_end ? new Date(profile.sick_leave_end) : new Date(new Date().getFullYear(), 11, 31)
   }
 
   const personalLeave = {
-    total: profile?.personal_leave_total || 3,
+    total: profile?.personal_leave_available || 3,
     used: profile?.personal_leave_used || 0,
-    validityStart: new Date(profile?.personal_validity_start || new Date().getFullYear(), 0, 1),
-    validityEnd: new Date(profile?.personal_validity_end || new Date().getFullYear(), 11, 31)
+    validityStart: profile?.personal_leave_start ? new Date(profile.personal_leave_start) : new Date(new Date().getFullYear(), 0, 1),
+    validityEnd: profile?.personal_leave_end ? new Date(profile.personal_leave_end) : new Date(new Date().getFullYear(), 11, 31)
   }
 
   return (
