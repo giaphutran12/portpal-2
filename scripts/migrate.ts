@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { parse } from 'csv-parse'
 import { randomBytes } from 'crypto'
