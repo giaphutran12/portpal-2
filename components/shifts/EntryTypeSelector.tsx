@@ -1,7 +1,7 @@
 'use client'
 
-import { format } from 'date-fns'
-import { useRouter } from 'next/navigation'
+import { format, parseISO, isValid } from 'date-fns'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Briefcase, Heart, Palmtree, Clock, Flag, Moon } from 'lucide-react'
 
@@ -52,24 +52,33 @@ const ENTRY_TYPES = [
 
 export function EntryTypeSelector() {
   const router = useRouter()
-  const today = new Date()
+  const searchParams = useSearchParams()
+  const dateParam = searchParams.get('date')
+  let selectedDate = new Date()
+  if (dateParam) {
+    const parsed = parseISO(dateParam)
+    if (isValid(parsed)) {
+      selectedDate = parsed
+    }
+  }
 
   return (
     <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-lg font-medium text-muted-foreground">
-          {format(today, 'EEEE, MMMM d, yyyy')}
+          {format(selectedDate, 'EEEE, MMMM d, yyyy')}
         </h2>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         {ENTRY_TYPES.map((type) => {
           const Icon = type.icon
+          const routeWithDate = dateParam ? `${type.route}?date=${dateParam}` : type.route
           return (
             <Card
               key={type.id}
               className="cursor-pointer transition-colors hover:bg-accent/50"
-              onClick={() => router.push(type.route)}
+              onClick={() => router.push(routeWithDate)}
             >
               <CardHeader className="flex flex-col items-center space-y-2 p-3 sm:p-4 pb-2">
                 <div className="rounded-full bg-primary/10 p-2 sm:p-3">
