@@ -71,12 +71,12 @@ function DatePicker({ date, setDate, placeholder }: { date: Date | undefined, se
         <Button
           variant={"outline"}
           className={cn(
-            "w-full sm:w-[150px] justify-start text-left font-normal",
+            "w-full sm:w-[180px] justify-start text-left font-normal",
             !date && "text-muted-foreground"
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {date ? format(date, "PPP") : <span>{placeholder}</span>}
+          {date ? format(date, "MMM dd, y") : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
