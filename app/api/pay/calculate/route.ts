@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import {
   successResponse,
   errorResponse,
+  unauthorizedResponse,
   serverErrorResponse,
 } from '@/lib/api/response'
 import { calculateShiftPay, getDifferentialForJob } from '@/lib/pay'
@@ -10,6 +11,13 @@ import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export async function GET(request: Request) {
   try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return unauthorizedResponse()
+    }
+
     const { searchParams } = new URL(request.url)
     const job = searchParams.get('job')
     const subjob = searchParams.get('subjob')
@@ -21,8 +29,6 @@ export async function GET(request: Request) {
     const mealParam = searchParams.get('meal')
 
     if (!job) return errorResponse('job parameter is required')
-
-    const supabase = await createClient()
     const overrides = await fetchAllRows<any>(
       supabase
         .from('pay_overrides')

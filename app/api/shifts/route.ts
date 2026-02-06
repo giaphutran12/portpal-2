@@ -62,7 +62,6 @@ export async function POST(request: Request) {
     console.log(`${LOG_PREFIX} POST - User: ${user.id}`)
 
     const body = await request.json()
-    console.log(`${LOG_PREFIX} POST - Request body:`, JSON.stringify(body, null, 2))
 
     const validation = createShiftSchema.safeParse(body)
 
@@ -77,7 +76,6 @@ export async function POST(request: Request) {
     }
 
     const shiftData = validation.data
-    console.log(`${LOG_PREFIX} POST - Validated data:`, JSON.stringify(shiftData, null, 2))
 
     let totalPay = shiftData.total_pay
     let rate = shiftData.rate
@@ -148,7 +146,6 @@ export async function POST(request: Request) {
       ...(holidayName && { holiday: holidayName }),
       ...(qualifyingDaysNum !== null && { qualifying_days: qualifyingDaysNum }),
     }
-    console.log(`${LOG_PREFIX} POST - Insert data:`, JSON.stringify(insertData, null, 2))
 
     const { data, error } = await supabase
       .from('shifts')
