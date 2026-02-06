@@ -9,6 +9,7 @@ import {
 } from '@/lib/api/response'
 import { calculateShiftPay } from '@/lib/pay'
 import { calculateXP, calculatePoints } from '@/lib/gamification'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 const LOG_PREFIX = '[API /shifts]'
 
@@ -38,12 +39,7 @@ export async function GET(request: Request) {
     if (start) query = query.gte('date', start)
     if (end) query = query.lte('date', end)
 
-    const { data, error } = await query
-
-    if (error) {
-      console.error(`${LOG_PREFIX} GET - DB Error:`, error)
-      return errorResponse(error.message)
-    }
+    const data = await fetchAllRows<any>(query)
 
     console.log(`${LOG_PREFIX} GET - Success: ${data?.length || 0} shifts`)
     return successResponse(data)
@@ -166,6 +162,39 @@ export async function POST(request: Request) {
     }
 
     console.log(`${LOG_PREFIX} POST - Shift created: ${data.id}`)
+
+    if (shiftData.entry_type === 'leave' && shiftData.leave_type) {
+      console.log(`${LOG_PREFIX} POST - Updating leave count for type: ${shiftData.leave_type}`)
+      
+      const { data: profile } = await supabase
+        .from('users')
+        .select('sick_days_used, personal_leave_used')
+        .eq('id', user.id)
+        .single()
+      
+      if (profile) {
+        let updateData: Record<string, number> = {}
+        
+        if (shiftData.leave_type === 'sick_leave') {
+          updateData = { sick_days_used: (profile.sick_days_used || 0) + 1 }
+        } else if (shiftData.leave_type === 'personal_leave') {
+          updateData = { personal_leave_used: (profile.personal_leave_used || 0) + 1 }
+        }
+        
+        if (Object.keys(updateData).length > 0) {
+          const { error: leaveUpdateError } = await supabase
+            .from('users')
+            .update(updateData)
+            .eq('id', user.id)
+          
+          if (leaveUpdateError) {
+            console.warn(`${LOG_PREFIX} POST - Leave count update failed (non-fatal):`, leaveUpdateError)
+          } else {
+            console.log(`${LOG_PREFIX} POST - Leave count updated:`, updateData)
+          }
+        }
+      }
+    }
 
     const xpEarned = calculateXP({ entryType: shiftData.entry_type })
     console.log(`${LOG_PREFIX} POST - XP earned: ${xpEarned}`)

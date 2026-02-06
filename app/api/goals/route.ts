@@ -7,6 +7,7 @@ import {
   unauthorizedResponse,
   serverErrorResponse,
 } from '@/lib/api/response'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export async function GET() {
   try {
@@ -15,13 +16,13 @@ export async function GET() {
 
     if (!user) return unauthorizedResponse()
 
-    const { data, error } = await supabase
-      .from('goals')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-
-    if (error) return errorResponse(error.message)
+    const data = await fetchAllRows<any>(
+      supabase
+        .from('goals')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+    )
 
     return successResponse(data)
   } catch (error) {

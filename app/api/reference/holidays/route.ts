@@ -5,6 +5,7 @@ import {
   unauthorizedResponse,
   serverErrorResponse,
 } from '@/lib/api/response'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export async function GET() {
   try {
@@ -13,12 +14,12 @@ export async function GET() {
 
     if (!user) return unauthorizedResponse()
 
-    const { data, error } = await supabase
-      .from('holidays')
-      .select('*')
-      .order('date')
-
-    if (error) return errorResponse(error.message)
+    const data = await fetchAllRows<any>(
+      supabase
+        .from('holidays')
+        .select('*')
+        .order('date')
+    )
 
     return successResponse(data)
   } catch (error) {

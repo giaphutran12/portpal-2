@@ -6,6 +6,7 @@ import {
 } from '@/lib/api/response'
 import { calculateShiftPay, getDifferentialForJob } from '@/lib/pay'
 import { getHoursOverride } from '@/lib/pay/paydiffs'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export async function GET(request: Request) {
   try {
@@ -22,9 +23,11 @@ export async function GET(request: Request) {
     if (!job) return errorResponse('job parameter is required')
 
     const supabase = await createClient()
-    const { data: overrides } = await supabase
-      .from('pay_overrides')
-      .select('*')
+    const overrides = await fetchAllRows<any>(
+      supabase
+        .from('pay_overrides')
+        .select('*')
+    )
 
     let hours = hoursParam ? parseFloat(hoursParam) : 8
     let overtimeHours = otHoursParam ? parseFloat(otHoursParam) : 0

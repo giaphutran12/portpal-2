@@ -5,6 +5,7 @@ import {
   unauthorizedResponse,
   serverErrorResponse,
 } from '@/lib/api/response'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export async function GET() {
   try {
@@ -13,18 +14,18 @@ export async function GET() {
 
     if (!user) return unauthorizedResponse()
 
-    const { data: jobs, error: jobsError } = await supabase
-      .from('jobs')
-      .select('*')
-      .order('name')
+    const jobs = await fetchAllRows<any>(
+      supabase
+        .from('jobs')
+        .select('*')
+        .order('name')
+    )
 
-    if (jobsError) return errorResponse(jobsError.message)
-
-    const { data: subjobs, error: subjobsError } = await supabase
-      .from('subjobs')
-      .select('*')
-
-    if (subjobsError) return errorResponse(subjobsError.message)
+    const subjobs = await fetchAllRows<any>(
+      supabase
+        .from('subjobs')
+        .select('*')
+    )
 
     const jobsWithSubjobs = jobs.map((job) => ({
       ...job,
