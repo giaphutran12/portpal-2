@@ -116,7 +116,57 @@ SUPABASE_SERVICE_ROLE_KEY         # Supabase service role key (SECRET - server o
 
 ---
 
-### 4. shadcn/ui Component Rule (MANDATORY)
+### 4. Background Agent Execution (MANDATORY - NO BLOCKING)
+
+**NEVER block on a single agent while doing nothing. Run agents in background.**
+
+| Scenario | WRONG | CORRECT |
+|----------|-------|---------|
+| User has multiple requests queued | `delegate_task(..., run_in_background=false)` then wait | `delegate_task(..., run_in_background=true)` then handle other requests |
+| Need exploration + implementation | Explore sync, wait, then implement | Explore async, work on other tasks, collect results later |
+| Multiple independent tasks | Do one at a time | Launch all in parallel with `run_in_background=true` |
+
+**When to use `run_in_background=true`:**
+- Exploration agents (`explore`, `librarian`)
+- Research tasks that don't block other work
+- When user has multiple requests queued
+- When you can do productive work while waiting
+
+**When to use `run_in_background=false`:**
+- ONLY when the result is immediately needed for the next step
+- ONLY when there's nothing else to do
+- ONLY for the final verification step
+
+**Pattern:**
+```typescript
+// Launch multiple agents in parallel
+delegate_task(subagent_type="explore", run_in_background=true, prompt="Find X")
+delegate_task(subagent_type="explore", run_in_background=true, prompt="Find Y")
+delegate_task(subagent_type="librarian", run_in_background=true, prompt="Research Z")
+
+// Continue with other work while they run
+// Handle other user requests
+// Do direct tool calls
+
+// Collect results when notified
+background_output(task_id="bg_xxx")
+```
+
+**WHY THIS MATTERS:**
+- User's time is valuable - don't make them wait
+- Queued messages = user is waiting = bad UX
+- Parallel work = faster completion
+- Blocking = wasted context window
+
+**NEVER sit idle waiting for one agent when you could be:**
+- Handling other user requests
+- Reading files for context
+- Running diagnostics
+- Preparing next steps
+
+---
+
+### 5. shadcn/ui Component Rule (MANDATORY)
 
 **ALL shadcn/ui components are already installed in this project.**
 
@@ -149,7 +199,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 - Already tested and production-ready
 - Reduces bundle size (no duplicate components)
 
-### 5. Supabase Database Rules (CRITICAL)
+### 6. Supabase Database Rules (CRITICAL)
 
 #### Migration Files via Supabase CLI (MANDATORY)
 
