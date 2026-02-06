@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { format } from 'date-fns'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
@@ -63,7 +64,13 @@ export function ShiftDayCard({ date, shifts, isToday, onClick, className }: Shif
             )}
           </div>
         ) : (
-          <span className="text-muted-foreground text-sm italic">No Shift</span>
+          <Link 
+            href={`/shifts/add?date=${format(date, 'yyyy-MM-dd')}`}
+            className="text-muted-foreground text-sm italic cursor-pointer hover:text-primary transition-colors"
+            onClick={(e) => e.stopPropagation()}
+          >
+            Add a shift
+          </Link>
         )}
       </div>
       

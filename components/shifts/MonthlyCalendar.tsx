@@ -14,7 +14,7 @@ import {
   subMonths 
 } from 'date-fns'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { CalendarNav } from './CalendarNav'
 import { Shift } from './types'
@@ -52,7 +52,16 @@ export function MonthlyCalendar({ currentDate, shifts }: MonthlyCalendarProps) {
     setSelectedDate(day)
   }
 
-  // Short weekday names for mobile, full for desktop
+  const shiftsByDay = useMemo(() => {
+    const map = new Map<string, Shift[]>()
+    shifts.forEach(s => {
+      const key = format(parseISO(s.date), 'yyyy-MM-dd')
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(s)
+    })
+    return map
+  }, [shifts])
+
   const weekDaysFull = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
   const weekDaysShort = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
@@ -79,7 +88,8 @@ export function MonthlyCalendar({ currentDate, shifts }: MonthlyCalendarProps) {
           {/* Days Grid */}
           <div className="grid grid-cols-7 bg-background">
             {days.map((day) => {
-              const dayShifts = shifts.filter(s => isSameDay(parseISO(s.date), day))
+              const dayKey = format(day, 'yyyy-MM-dd')
+              const dayShifts = shiftsByDay.get(dayKey) || []
               const isCurrentMonth = isSameMonth(day, monthStart)
               const isToday = isSameDay(day, new Date())
               
@@ -132,7 +142,9 @@ export function MonthlyCalendar({ currentDate, shifts }: MonthlyCalendarProps) {
             {format(selectedDate, 'EEEE, MMMM d, yyyy')}
           </h3>
           {(() => {
-            const dayShifts = shifts.filter(s => isSameDay(parseISO(s.date), selectedDate))
+            const selectedDateKey = format(selectedDate, 'yyyy-MM-dd')
+            const dayShifts = shiftsByDay.get(selectedDateKey) || []
+            const selectedDateParam = selectedDateKey
             if (dayShifts.length === 0) {
               return (
                 <Card>
@@ -143,7 +155,7 @@ export function MonthlyCalendar({ currentDate, shifts }: MonthlyCalendarProps) {
               )
             }
             return dayShifts.map(shift => (
-              <Link key={shift.id} href={`/shifts/${shift.id}`}>
+              <Link key={shift.id} href={`/shifts/${shift.id}?from=monthly&date=${selectedDateParam}`}>
                 <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start">

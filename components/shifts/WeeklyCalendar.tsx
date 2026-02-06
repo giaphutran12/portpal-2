@@ -4,7 +4,14 @@ import { addDays, addWeeks, format, parseISO, startOfWeek, subWeeks, isSameDay }
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
+import { useMemo } from 'react'
 import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Shift } from './types'
 import { CalendarNav } from './CalendarNav'
@@ -33,24 +40,26 @@ export function WeeklyCalendar({ currentDate, shifts }: WeeklyCalendarProps) {
 
   // Calculate stats
   const totalShifts = shifts.length
-  const totalHours = shifts.reduce((sum, _) => {
-    // Assuming hours logic is needed, but Shift type only has pay.
-    // If hours aren't stored, we might just count shifts or assume standard length.
-    // Prompt asked for Total Hours.
-    // Existing Shift type didn't explicitly show 'hours'. 
-    // Checking previous 'read' of page.tsx: it didn't use hours. 
-    // It showed job, subjob, location, total_pay.
-    // If hours are missing from data, I'll display 0 or N/A for now.
-    // Wait, the prompt implies "Total Hours". I will check if 'hours' exists in the table later or if it can be derived.
-    // For now, I'll check if any property resembles hours or duration.
-    // If not, I'll omit or set to 0.
-    return sum + 0 
+  const totalHours = shifts.reduce((sum, s) => {
+    // Sum regular hours + overtime hours for each shift
+    const regular = s.hours || 0
+    const overtime = s.overtime_hours || 0
+    return sum + regular + overtime
   }, 0)
   
   const totalEarned = shifts.reduce((sum, s) => sum + (s.total_pay || 0), 0)
 
-  // Generate days
   const days = Array.from({ length: 7 }).map((_, i) => addDays(start, i))
+
+  const shiftsByDay = useMemo(() => {
+    const map = new Map<string, Shift[]>()
+    shifts.forEach(s => {
+      const key = format(parseISO(s.date), 'yyyy-MM-dd')
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(s)
+    })
+    return map
+  }, [shifts])
 
   return (
     <div className="space-y-6">
@@ -70,7 +79,6 @@ export function WeeklyCalendar({ currentDate, shifts }: WeeklyCalendarProps) {
           </CardHeader>
           <CardContent className="p-3 sm:p-4 pt-0">
             <div className="text-xl sm:text-2xl font-bold">{totalHours}</div>
-            <p className="text-xs text-muted-foreground">Hours not in DB yet</p> 
           </CardContent>
         </Card>
         <Card>
@@ -104,25 +112,64 @@ export function WeeklyCalendar({ currentDate, shifts }: WeeklyCalendarProps) {
       {/* Weekly Grid */}
       <div className="space-y-2">
         {days.map((day) => {
-            const dayShifts = shifts.filter(s => isSameDay(parseISO(s.date), day))
+            const dayKey = format(day, 'yyyy-MM-dd')
+            const dayShifts = shiftsByDay.get(dayKey) || []
             const isToday = isSameDay(day, new Date())
+            const dayParam = dayKey
+            const buildShiftHref = (shiftId: string) => `/shifts/${shiftId}?from=weekly&date=${dayParam}`
             
+            if (dayShifts.length > 1) {
+              return (
+                <DropdownMenu key={day.toISOString()}>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="w-full text-left p-0 border-0 bg-transparent"
+                    >
+                      <ShiftDayCard
+                        date={day}
+                        shifts={dayShifts}
+                        isToday={isToday}
+                        className={dayShifts.length === 0 ? "opacity-70" : ""}
+                      />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-72 max-h-72 overflow-y-auto">
+                    {dayShifts.map((shift) => {
+                      const payLabel = typeof shift.total_pay === 'number'
+                        ? `$${shift.total_pay.toFixed(2)}`
+                        : '--'
+
+                      return (
+                        <DropdownMenuItem
+                          key={shift.id}
+                          onClick={() => router.push(buildShiftHref(shift.id))}
+                          className="flex items-center justify-between gap-3"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{shift.entry_type}</span>
+                            {shift.job && (
+                              <span className="text-xs text-muted-foreground">- {shift.job}</span>
+                            )}
+                          </div>
+                          <span className="font-mono text-xs">{payLabel}</span>
+                        </DropdownMenuItem>
+                      )
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )
+            }
+
             return (
-                <ShiftDayCard
-                    key={day.toISOString()}
-                    date={day}
-                    shifts={dayShifts}
-                    isToday={isToday}
-                    onClick={() => {
-                        // If shift exists, maybe link to first one? Or just a general day view?
-                        // Prompt: "Clicking a day with shift opens shift details (link to shift or show panel)"
-                        // Since I don't have a panel, I'll link to the first shift's detail if exists.
-                        if (dayShifts.length > 0) {
-                            router.push(`/shifts/${dayShifts[0].id}`)
-                        }
-                    }}
-                    className={dayShifts.length === 0 ? "opacity-70" : ""}
-                />
+              <ShiftDayCard
+                key={day.toISOString()}
+                date={day}
+                shifts={dayShifts}
+                isToday={isToday}
+                onClick={dayShifts.length === 1 ? () => router.push(buildShiftHref(dayShifts[0].id)) : undefined}
+                className={dayShifts.length === 0 ? "opacity-70" : ""}
+              />
             )
         })}
       </div>

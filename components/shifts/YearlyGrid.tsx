@@ -2,6 +2,7 @@
 
 import { addYears, eachMonthOfInterval, endOfYear, format, getYear, isSameMonth, parseISO, startOfYear, subYears } from 'date-fns'
 import { useRouter } from 'next/navigation'
+import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CalendarNav } from './CalendarNav'
 import { Shift } from './types'
@@ -37,9 +38,18 @@ export function YearlyGrid({ currentDate, shifts }: YearlyGridProps) {
     router.push(`/index/shifts/monthly?date=${format(month, 'yyyy-MM-dd')}`)
   }
 
-  // Calculate stats
+  const shiftsByMonth = useMemo(() => {
+    const map = new Map<string, Shift[]>()
+    shifts.forEach(s => {
+      const key = format(parseISO(s.date), 'yyyy-MM')
+      if (!map.has(key)) map.set(key, [])
+      map.get(key)!.push(s)
+    })
+    return map
+  }, [shifts])
+
   const totalShifts = shifts.length
-  const totalHours = shifts.reduce((sum, _) => sum + 0, 0) // Placeholder for hours
+  const totalHours = shifts.reduce((sum, s) => sum + (s.hours || 0) + (s.overtime_hours || 0), 0)
   const avgPayPerShift = totalShifts > 0 
     ? shifts.reduce((sum, s) => sum + (s.total_pay || 0), 0) / totalShifts 
     : 0
@@ -62,7 +72,6 @@ export function YearlyGrid({ currentDate, shifts }: YearlyGridProps) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalHours}</div>
-            <p className="text-xs text-muted-foreground">Hours not in DB yet</p>
           </CardContent>
         </Card>
         <Card>
@@ -85,7 +94,8 @@ export function YearlyGrid({ currentDate, shifts }: YearlyGridProps) {
       {/* Yearly Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {months.map((month) => {
-          const monthShifts = shifts.filter(s => isSameMonth(parseISO(s.date), month))
+          const monthKey = format(month, 'yyyy-MM')
+          const monthShifts = shiftsByMonth.get(monthKey) || []
           const shiftCount = monthShifts.length
           const isCurrentMonth = isSameMonth(month, new Date())
           
