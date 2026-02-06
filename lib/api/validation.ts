@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+const dateRegex = /^\d{4}-\d{2}-\d{2}$/
+
 export const entryTypes = ['worked', 'leave', 'vacation', 'standby', 'stat_holiday', 'day_off'] as const
 export const shiftTypes = ['day', 'night', 'graveyard'] as const
 export const leaveTypes = ['sick_leave', 'personal_leave', 'parental_leave'] as const
@@ -35,15 +37,15 @@ export const updateProfileSchema = z.object({
   last_name: z.string().optional(),
   ilwu_local: z.enum(['500', '502', 'Other']).optional(),
   board: z.enum(['A BOARD', 'B BOARD', 'C BOARD', 'T BOARD', '00 BOARD', 'R BOARD', 'UNION']).optional(),
-  theme_preference: z.enum(['dark', 'light']).optional(),
+  theme_preference: z.enum(['dark', 'light', 'system']).optional(),
   sick_days_available: z.number().optional(),
   sick_days_used: z.number().optional(),
-  sick_leave_start: z.string().optional(),
-  sick_leave_end: z.string().optional(),
+  sick_leave_start: z.string().regex(dateRegex, 'Invalid date format (YYYY-MM-DD)').optional(),
+  sick_leave_end: z.string().regex(dateRegex, 'Invalid date format (YYYY-MM-DD)').optional(),
   personal_leave_available: z.number().optional(),
   personal_leave_used: z.number().optional(),
-  personal_leave_start: z.string().optional(),
-  personal_leave_end: z.string().optional(),
+  personal_leave_start: z.string().regex(dateRegex, 'Invalid date format (YYYY-MM-DD)').optional(),
+  personal_leave_end: z.string().regex(dateRegex, 'Invalid date format (YYYY-MM-DD)').optional(),
   onboarding_completed: z.boolean().optional(),
 })
 

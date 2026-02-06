@@ -26,6 +26,12 @@ interface UserProfile {
   subscription_tier: string
 }
 
+interface PasswordForm {
+  currentPassword: string
+  newPassword: string
+  confirmPassword: string
+}
+
 export default function AccountPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -33,6 +39,12 @@ export default function AccountPage() {
   const [user, setUser] = useState<UserProfile | null>(null)
   const [formData, setFormData] = useState<Partial<UserProfile>>({})
   const [originalData, setOriginalData] = useState<Partial<UserProfile>>({})
+  const [passwordForm, setPasswordForm] = useState<PasswordForm>({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  })
+  const [changingPassword, setChangingPassword] = useState(false)
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -47,12 +59,12 @@ export default function AccountPage() {
 
         const response = await fetch('/api/user/profile')
         if (!response.ok) {
-          toast.error('Failed to load profile')
+          const errorData = await response.json()
+          toast.error(errorData.error || 'Failed to load profile')
           return
         }
 
-        const data = await response.json()
-        const profile = data.data
+        const profile = await response.json()
 
         setUser(profile)
         setFormData(profile)
@@ -96,13 +108,12 @@ export default function AccountPage() {
       })
 
       if (!response.ok) {
-        const error = await response.json()
-        toast.error(error.message || 'Failed to save profile')
+        const errorData = await response.json()
+        toast.error(errorData.error || 'Failed to save profile')
         return
       }
 
-      const data = await response.json()
-      const updatedProfile = data.data
+      const updatedProfile = await response.json()
 
       setUser(updatedProfile)
       setFormData(updatedProfile)
@@ -117,6 +128,55 @@ export default function AccountPage() {
       console.error(error)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handlePasswordChange = async () => {
+    if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
+      toast.error('Please fill in all password fields')
+      return
+    }
+
+    if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+      toast.error('New passwords do not match')
+      return
+    }
+
+    if (passwordForm.newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters')
+      return
+    }
+
+    setChangingPassword(true)
+    try {
+      const supabase = createClient()
+      
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user?.email || '',
+        password: passwordForm.currentPassword
+      })
+
+      if (signInError) {
+        toast.error('Current password is incorrect')
+        return
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: passwordForm.newPassword
+      })
+
+      if (updateError) {
+        toast.error(updateError.message || 'Failed to update password')
+        return
+      }
+
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' })
+      toast.success('Password updated successfully')
+    } catch (error) {
+      toast.error('Error changing password')
+      console.error(error)
+    } finally {
+      setChangingPassword(false)
     }
   }
 
@@ -273,6 +333,54 @@ export default function AccountPage() {
                   </SelectContent>
                 </Select>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Security */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Security</CardTitle>
+              <CardDescription>Change your password</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="currentPassword">Current Password</Label>
+                <Input
+                  id="currentPassword"
+                  type="password"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
+                  placeholder="Enter current password"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="newPassword">New Password</Label>
+                <Input
+                  id="newPassword"
+                  type="password"
+                  value={passwordForm.newPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                  placeholder="Enter new password"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={passwordForm.confirmPassword}
+                  onChange={(e) => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  placeholder="Confirm new password"
+                />
+              </div>
+              <Button 
+                onClick={handlePasswordChange} 
+                disabled={changingPassword}
+                variant="outline"
+                className="w-full"
+              >
+                {changingPassword ? 'Updating...' : 'Update Password'}
+              </Button>
             </CardContent>
           </Card>
 
