@@ -14,8 +14,8 @@ import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 
 const QUALIFYING_DAYS_OPTIONS = [
-  { value: '1-14', label: '1-14 days' },
-  { value: '15+', label: '15+ days' },
+  { value: '14', label: '1-14 days' },
+  { value: '15', label: '15+ days' },
 ] as const
 
 export function StatHolidayForm() {
@@ -59,17 +59,17 @@ export function StatHolidayForm() {
 
     setLoading(true)
     try {
-      const res = await fetch('/api/shifts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          entry_type: 'stat_holiday',
-          holiday_id: holiday,
-          qualifying_days: qualifyingDays,
-          date: format(date, 'yyyy-MM-dd'),
-          notes: notes || null,
-        }),
-      })
+       const res = await fetch('/api/shifts', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({
+           entry_type: 'stat_holiday',
+           holiday_id: holiday,
+           qualifying_days: parseInt(qualifyingDays, 10),
+           date: format(date, 'yyyy-MM-dd'),
+           notes: notes || null,
+         }),
+       })
 
       if (!res.ok) {
         const data = await res.json()

@@ -57,13 +57,13 @@ export function DeleteShiftButton({ shiftId }: DeleteShiftButtonProps) {
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete this shift?</AlertDialogTitle>
+          <AlertDialogTitle>Delete log permanently?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete this shift entry.
+            This may affect your streak and points
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>Keep Log</AlertDialogCancel>
           <AlertDialogAction onClick={handleDelete} disabled={loading}>
             {loading ? 'Deleting...' : 'Delete'}
           </AlertDialogAction>
