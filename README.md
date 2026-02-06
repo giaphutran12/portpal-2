@@ -1,36 +1,212 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PortPal
+
+A modern shift tracking application built for ILWU longshoremen. PortPal enables workers to log various types of shifts, track earnings, monitor goals, and access comprehensive analytics—all from a mobile-first progressive web app.
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Database:** Supabase (PostgreSQL)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **UI Components:** shadcn/ui
+- **Authentication:** Supabase Auth
+- **Deployment:** Vercel
+
+## Features
+
+- **6 Entry Types:** Log different shift categories (worked, standby, dispatch, casual, training, other)
+- **Dashboard:** Real-time overview of shifts, earnings, and activity
+- **Analytics:** Detailed insights into shift patterns and earnings trends
+- **Goals:** Set and track personal earning and shift goals
+- **PWA:** Progressive Web App with offline support and installability
+- **Mobile-First:** Optimized for mobile devices with responsive design
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ and npm/yarn/pnpm
+- Supabase account and project
+- Git
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/giaphutran12/portpal-2.git
+cd portpal-2/portpal-2-next
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables (see Environment Variables section below)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Start the development server:
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+### Development Workflow
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The app uses Supabase for backend services. To work with the database:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Ensure Supabase CLI is installed: `npm install -g supabase`
+2. Link your Supabase project: `supabase link --project-ref <project-id>`
+3. Create migrations for schema changes: `supabase migration new <migration_name>`
+4. Apply migrations: `supabase db push`
 
-## Deploy on Vercel
+## Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Create a `.env.local` file in the project root with the following variables:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-supabase-anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
+```
+
+**Variable Descriptions:**
+
+| Variable | Description | Visibility |
+|----------|-------------|-----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | Public (client-side) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous/public key for client auth | Public (client-side) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key for server-side operations | Secret (server-only) |
+
+**Note:** Do not commit `.env.local` to version control. Use `.env.example` as a template for team members.
+
+## Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server (http://localhost:3000) |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `npm run lint` | Run ESLint |
+| `npm run type-check` | Run TypeScript type checking |
+| `npm run migrate` | Apply Supabase migrations |
+
+## Project Structure
+
+```
+portpal-2-next/
+├── app/                          # Next.js App Router
+│   ├── (auth)/                   # Authentication pages
+│   ├── (dashboard)/              # Main app pages
+│   ├── api/                       # API routes
+│   └── layout.tsx                # Root layout
+├── components/
+│   ├── ui/                       # shadcn/ui components
+│   └── [feature]/                # Feature-specific components
+├── lib/
+│   ├── supabase.ts              # Supabase client setup
+│   └── utils.ts                 # Utility functions
+├── styles/                       # Global styles
+├── public/                       # Static assets
+├── supabase/
+│   └── migrations/              # Database migrations
+├── .env.local                   # Environment variables (not committed)
+├── .env.example                 # Environment template
+├── next.config.ts               # Next.js configuration
+├── tailwind.config.ts           # Tailwind CSS configuration
+└── tsconfig.json                # TypeScript configuration
+```
+
+## Database
+
+PortPal uses Supabase (PostgreSQL) for data persistence. The database includes:
+
+- **users:** User accounts and profiles
+- **shifts:** Shift entries with type, date, duration, and earnings
+- **goals:** User-defined earning and shift goals
+- **jobs:** Reference data for job types
+- **locations:** Reference data for work locations
+
+### Migrations
+
+All database schema changes must be managed through Supabase migrations:
+
+```bash
+# Create a new migration
+supabase migration new add_new_column
+
+# Apply migrations
+supabase db push
+```
+
+### Data Limits
+
+Supabase enforces a 1000-row limit per query. When fetching large datasets (e.g., all shifts), implement pagination:
+
+```typescript
+async function fetchAllShifts() {
+  const PAGE_SIZE = 1000
+  let allData = []
+  let page = 0
+  let hasMore = true
+
+  while (hasMore) {
+    const from = page * PAGE_SIZE
+    const to = from + PAGE_SIZE - 1
+    
+    const { data, error } = await supabase
+      .from('shifts')
+      .select('*')
+      .range(from, to)
+    
+    if (error) throw error
+    
+    allData = [...allData, ...data]
+    hasMore = data.length === PAGE_SIZE
+    page++
+  }
+  
+  return allData
+}
+```
+
+## Testing
+
+Test credentials for development:
+
+| Field | Value |
+|-------|-------|
+| Email | `test@portpal.dev` |
+| Password | `testpassword123` |
+
+## Deployment
+
+PortPal is designed for deployment on Vercel:
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Set environment variables in Vercel project settings
+4. Deploy
+
+For detailed deployment instructions, see [Next.js Deployment Documentation](https://nextjs.org/docs/app/building-your-application/deploying).
+
+## Contributing
+
+When contributing to PortPal:
+
+1. Create a feature branch from `main`
+2. Make your changes and test thoroughly
+3. Ensure TypeScript types are correct
+4. Submit a pull request with a clear description
+
+## License
+
+This project is proprietary and confidential.
+
+## Support
+
+For issues, questions, or feature requests, contact the development team.
