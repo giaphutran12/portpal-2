@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { format } from 'date-fns'
 import { Plus } from 'lucide-react'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export default async function ShiftsPage() {
   const supabase = await createClient()
@@ -12,12 +13,14 @@ export default async function ShiftsPage() {
 
   if (!user) redirect('/signin')
 
-  const { data: shifts } = await supabase
-    .from('shifts')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('date', { ascending: false })
-    .limit(50)
+  const shifts = await fetchAllRows<any>(
+    supabase
+      .from('shifts')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('date', { ascending: false })
+      .limit(50)
+  )
 
   return (
     <div className="min-h-screen bg-background">

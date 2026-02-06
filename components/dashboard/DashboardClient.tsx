@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
+import { format } from "date-fns"
 import { GamificationWidget } from "./GamificationWidget"
 import { YearlyGoalWidget } from "./YearlyGoalWidget"
 import { EarningsCards, PeriodData } from "./EarningsCards"
@@ -42,22 +44,62 @@ export function DashboardClient({
   const [sickLeave, setSickLeave] = useState(initialBenefits.sickLeave)
   const [personalLeave, setPersonalLeave] = useState(initialBenefits.personalLeave)
 
-  const handleUpdateSickLeave = (data: BenefitsData) => {
-    setSickLeave({
-      total: data.totalAvailable,
-      used: sickLeave.used,
-      validityStart: data.validityStart,
-      validityEnd: data.validityEnd
-    })
+  const handleUpdateSickLeave = async (data: BenefitsData) => {
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sick_days_available: data.totalAvailable,
+          sick_leave_start: format(data.validityStart, 'yyyy-MM-dd'),
+          sick_leave_end: format(data.validityEnd, 'yyyy-MM-dd'),
+        }),
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Failed to update sick leave')
+      }
+
+      setSickLeave({
+        total: data.totalAvailable,
+        used: sickLeave.used,
+        validityStart: data.validityStart,
+        validityEnd: data.validityEnd
+      })
+      toast.success('Sick leave updated')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update sick leave')
+    }
   }
 
-  const handleUpdatePersonalLeave = (data: BenefitsData) => {
-    setPersonalLeave({
-      total: data.totalAvailable,
-      used: personalLeave.used,
-      validityStart: data.validityStart,
-      validityEnd: data.validityEnd
-    })
+  const handleUpdatePersonalLeave = async (data: BenefitsData) => {
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          personal_leave_available: data.totalAvailable,
+          personal_leave_start: format(data.validityStart, 'yyyy-MM-dd'),
+          personal_leave_end: format(data.validityEnd, 'yyyy-MM-dd'),
+        }),
+      })
+
+      if (!res.ok) {
+        const errorData = await res.json()
+        throw new Error(errorData.error || 'Failed to update personal leave')
+      }
+
+      setPersonalLeave({
+        total: data.totalAvailable,
+        used: personalLeave.used,
+        validityStart: data.validityStart,
+        validityEnd: data.validityEnd
+      })
+      toast.success('Personal leave updated')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update personal leave')
+    }
   }
 
   return (

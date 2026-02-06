@@ -21,6 +21,7 @@ import { use } from 'react'
 
 interface EditShiftPageProps {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ from?: string; date?: string }>
 }
 
 interface Job {
@@ -59,7 +60,7 @@ interface Shift {
   vessel?: string
   leave_type?: string
   holiday_id?: string
-  qualifying_days?: string
+  qualifying_days?: number | null
   will_receive_paystub?: boolean
   notes?: string
   total_pay?: number
@@ -72,8 +73,8 @@ const LEAVE_TYPES = [
 ] as const
 
 const QUALIFYING_DAYS_OPTIONS = [
-  { value: '1-14', label: '1-14 days' },
-  { value: '15+', label: '15+ days' },
+  { value: '14', label: '1-14 days' },
+  { value: '15', label: '15+ days' },
 ] as const
 
 const SHIFT_TYPE_ICONS = {
@@ -91,8 +92,9 @@ const ENTRY_TYPES = [
   { value: 'day_off', label: 'Day Off' },
 ]
 
-export default function EditShiftPage({ params }: EditShiftPageProps) {
+export default function EditShiftPage({ params, searchParams }: EditShiftPageProps) {
   const { id } = use(params)
+  const { from, date } = use(searchParams)
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -238,10 +240,47 @@ export default function EditShiftPage({ params }: EditShiftPageProps) {
 
     setSaving(true)
     try {
+      const payload: Record<string, unknown> = {
+        entry_type: shift.entry_type,
+        date: shift.date?.split('T')[0],
+      }
+      
+      if (shift.entry_type === 'worked') {
+        Object.assign(payload, {
+          job: shift.job,
+          subjob: shift.subjob || null,
+          location: shift.location,
+          shift_type: shift.shift_type,
+          hours: shift.hours,
+          rate: shift.rate,
+          overtime_hours: shift.overtime_hours,
+          overtime_rate: shift.overtime_rate,
+          travel_hours: shift.travel_hours || 0,
+          meal: shift.meal || false,
+          foreman: shift.foreman || null,
+          vessel: shift.vessel || null,
+          total_pay: shift.total_pay,
+        })
+      } else if (shift.entry_type === 'leave') {
+        Object.assign(payload, {
+          leave_type: shift.leave_type,
+          hours: shift.hours,
+          rate: shift.rate,
+          will_receive_paystub: shift.will_receive_paystub || false,
+        })
+      } else if (shift.entry_type === 'stat_holiday') {
+        Object.assign(payload, {
+          holiday_id: shift.holiday_id,
+          qualifying_days: shift.qualifying_days,
+        })
+      }
+      
+      if (shift.notes) payload.notes = shift.notes
+      
       const res = await fetch(`/api/shifts/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(shift),
+        body: JSON.stringify(payload),
       })
 
       if (!res.ok) {
@@ -249,9 +288,10 @@ export default function EditShiftPage({ params }: EditShiftPageProps) {
         throw new Error(data.error || 'Failed to update shift')
       }
 
-      toast.success('Shift updated')
-      router.push(`/shifts/${id}`)
-      router.refresh()
+       toast.success('Shift updated')
+       const redirectUrl = from ? `/shifts/${id}?from=${from}&date=${date}` : `/shifts/${id}`
+       router.push(redirectUrl)
+       router.refresh()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to update shift')
     } finally {
@@ -277,14 +317,14 @@ export default function EditShiftPage({ params }: EditShiftPageProps) {
   return (
     <div className="min-h-screen bg-background p-4 pb-20">
       <div className="max-w-2xl mx-auto space-y-4">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href={`/shifts/${id}`}>
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
-          </Button>
-          <h1 className="text-xl font-bold">Edit Shift</h1>
-        </div>
+         <div className="flex items-center gap-4">
+           <Button variant="ghost" size="icon" asChild>
+             <Link href={from ? `/shifts/${id}?from=${from}&date=${date}` : `/shifts/${id}`}>
+               <ArrowLeft className="h-5 w-5" />
+             </Link>
+           </Button>
+           <h1 className="text-xl font-bold">Edit Shift</h1>
+         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           
@@ -532,7 +572,10 @@ export default function EditShiftPage({ params }: EditShiftPageProps) {
                     </div>
                     <div className="space-y-2">
                         <Label>Qualifying Days</Label>
-                        <Select value={shift.qualifying_days || ''} onValueChange={(v) => updateField('qualifying_days', v)}>
+                        <Select
+                          value={shift.qualifying_days !== null && shift.qualifying_days !== undefined ? String(shift.qualifying_days) : ''}
+                          onValueChange={(v) => updateField('qualifying_days', v ? parseInt(v, 10) : null)}
+                        >
                             <SelectTrigger><SelectValue placeholder="Select days" /></SelectTrigger>
                             <SelectContent>
                                 {QUALIFYING_DAYS_OPTIONS.map(o => (

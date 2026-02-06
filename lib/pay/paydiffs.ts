@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/client'
+import { fetchAllRows } from '@/lib/supabase/pagination'
 
 interface PayOverride {
   job: string
@@ -15,17 +16,19 @@ export async function loadPayOverrides(): Promise<PayOverride[]> {
   if (cachedOverrides) return cachedOverrides
 
   const supabase = createClient()
-  const { data, error } = await supabase
-    .from('pay_overrides')
-    .select('*')
-
-  if (error) {
+  
+  try {
+    const data = await fetchAllRows<PayOverride>(
+      supabase
+        .from('pay_overrides')
+        .select('*')
+    )
+    cachedOverrides = data
+    return cachedOverrides
+  } catch (error) {
     console.error('Failed to load pay overrides:', error)
     return []
   }
-
-  cachedOverrides = data as PayOverride[]
-  return cachedOverrides
 }
 
 export function getHoursOverride(

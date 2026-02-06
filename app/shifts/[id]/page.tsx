@@ -9,10 +9,11 @@ import { DeleteShiftButton } from './delete-button'
 
 interface ShiftDetailPageProps {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ from?: string; date?: string }>
 }
 
-export default async function ShiftDetailPage({ params }: ShiftDetailPageProps) {
-  const { id } = await params
+export default async function ShiftDetailPage({ params, searchParams }: ShiftDetailPageProps) {
+  const [{ id }, { from, date }] = await Promise.all([params, searchParams])
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -27,12 +28,16 @@ export default async function ShiftDetailPage({ params }: ShiftDetailPageProps) 
 
   if (error || !shift) notFound()
 
+  const view = from === 'weekly' || from === 'monthly' || from === 'yearly' ? from : null
+  const backDate = date || format(new Date(shift.date), 'yyyy-MM-dd')
+  const backHref = view ? `/index/shifts/${view}?date=${backDate}` : '/index/shifts/monthly'
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto space-y-4">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link href="/index/shifts/monthly">
+            <Link href={backHref}>
               <ArrowLeft className="h-5 w-5" />
             </Link>
           </Button>
@@ -150,15 +155,15 @@ export default async function ShiftDetailPage({ params }: ShiftDetailPageProps) 
           </CardContent>
         </Card>
 
-        <div className="flex gap-3">
-          <Button asChild className="flex-1">
-            <Link href={`/shifts/${id}/edit`}>
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit
-            </Link>
-          </Button>
-          <DeleteShiftButton shiftId={id} />
-        </div>
+         <div className="flex gap-3">
+           <Button asChild className="flex-1">
+             <Link href={`/shifts/${id}/edit?from=${from || ''}&date=${backDate}`}>
+               <Pencil className="h-4 w-4 mr-2" />
+               Edit
+             </Link>
+           </Button>
+           <DeleteShiftButton shiftId={id} />
+         </div>
       </div>
     </div>
   )
