@@ -5,40 +5,50 @@ import { startOfWeek, endOfWeek, subWeeks, format, isAfter, isBefore } from 'dat
 import { fetchAllRows } from '@/lib/supabase/pagination'
 
 export default async function DashboardPage() {
+  const pageStart = performance.now()
+  
   const supabase = await createClient()
+  
+  // Time: getUser()
+  const getUserStart = performance.now()
   const { data: { user } } = await supabase.auth.getUser()
+  const getUserDuration = Math.round(performance.now() - getUserStart)
+  console.log(`[PERF] dashboard getUser(): ${getUserDuration}ms`)
 
   if (!user) {
     redirect('/signin')
   }
 
-  const { data: profile } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
   const fiscalStart = '2026-01-04'
   const fiscalEnd = '2027-01-03'
   const queryStart = '2025-12-01' 
 
-  // Fetch all shifts with pagination (could exceed 1000 for full fiscal year)
-  const allShifts = await fetchAllRows<any>(
+  // Time: parallel queries
+  const parallelStart = performance.now()
+  const [profileResult, allShifts, holidaysResult] = await Promise.all([
     supabase
-      .from('shifts')
+      .from('users')
       .select('*')
-      .eq('user_id', user.id)
-      .gte('date', queryStart)
-      .order('date', { ascending: false })
-  )
+      .eq('id', user.id)
+      .single(),
+    fetchAllRows<any>(
+      supabase
+        .from('shifts')
+        .select('*')
+        .eq('user_id', user.id)
+        .gte('date', queryStart)
+        .order('date', { ascending: false })
+    ),
+    supabase
+      .from('holidays')
+      .select('*')
+      .order('date', { ascending: true })
+  ])
+  const parallelDuration = Math.round(performance.now() - parallelStart)
+  console.log(`[PERF] dashboard parallel queries: ${parallelDuration}ms`)
 
-  // Holidays table is small (< 1000 rows), no pagination needed
-  const { data: holidays } = await supabase
-    .from('holidays')
-    .select('*')
-    .order('date', { ascending: true })
-
-  const allHolidays = holidays || []
+  const profile = profileResult.data
+  const allHolidays = holidaysResult.data || []
 
   const now = new Date()
   const thisWeekStart = startOfWeek(now, { weekStartsOn: 0 })
@@ -118,6 +128,9 @@ export default async function DashboardPage() {
     validityStart: profile?.personal_leave_start ? new Date(profile.personal_leave_start) : new Date(new Date().getFullYear(), 0, 1),
     validityEnd: profile?.personal_leave_end ? new Date(profile.personal_leave_end) : new Date(new Date().getFullYear(), 11, 31)
   }
+
+  const pageTotalDuration = Math.round(performance.now() - pageStart)
+  console.log(`[PERF] dashboard TOTAL server time: ${pageTotalDuration}ms`)
 
   return (
     <DashboardClient

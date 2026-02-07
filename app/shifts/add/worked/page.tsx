@@ -9,25 +9,25 @@ export default async function AddWorkedShiftPage() {
 
   if (!user) redirect('/signin')
 
-  const jobs = await fetchAllRows<any>(
-    supabase
-      .from('jobs')
-      .select('*')
-      .order('name')
-  )
-
-  const subjobs = await fetchAllRows<any>(
-    supabase
-      .from('subjobs')
-      .select('*')
-  )
-
-  const locations = await fetchAllRows<any>(
-    supabase
-      .from('locations')
-      .select('*')
-      .order('name')
-  )
+  const [jobs, subjobs, locations] = await Promise.all([
+    fetchAllRows<any>(
+      supabase
+        .from('jobs')
+        .select('*')
+        .order('name')
+    ),
+    fetchAllRows<any>(
+      supabase
+        .from('subjobs')
+        .select('*')
+    ),
+    fetchAllRows<any>(
+      supabase
+        .from('locations')
+        .select('*')
+        .order('name')
+    ),
+  ])
 
   const jobsWithSubjobs = jobs.map((job) => ({
     ...job,

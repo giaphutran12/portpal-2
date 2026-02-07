@@ -14,18 +14,19 @@ export async function GET() {
 
     if (!user) return unauthorizedResponse()
 
-    const jobs = await fetchAllRows<any>(
-      supabase
-        .from('jobs')
-        .select('*')
-        .order('name')
-    )
-
-    const subjobs = await fetchAllRows<any>(
-      supabase
-        .from('subjobs')
-        .select('*')
-    )
+    const [jobs, subjobs] = await Promise.all([
+      fetchAllRows<any>(
+        supabase
+          .from('jobs')
+          .select('*')
+          .order('name')
+      ),
+      fetchAllRows<any>(
+        supabase
+          .from('subjobs')
+          .select('*')
+      ),
+    ])
 
     const jobsWithSubjobs = jobs.map((job) => ({
       ...job,
