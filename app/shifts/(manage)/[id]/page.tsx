@@ -30,7 +30,7 @@ export default async function ShiftDetailPage({ params, searchParams }: ShiftDet
 
   const view = from === 'weekly' || from === 'monthly' || from === 'yearly' ? from : null
   const backDate = date || format(new Date(shift.date), 'yyyy-MM-dd')
-  const backHref = view ? `/index/shifts/${view}?date=${backDate}` : '/index/shifts/monthly'
+  const backHref = view ? `/shifts/${view}?date=${backDate}` : '/shifts/monthly'
 
   return (
     <div className="min-h-screen bg-background p-4">

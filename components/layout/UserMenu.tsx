@@ -75,10 +75,10 @@ export function UserMenu({ email, firstName, lastName }: UserMenuProps) {
               <DropdownMenuSeparator />
             </>
           )}
-          <DropdownMenuItem onClick={() => router.push('/index/home/account')}>
+          <DropdownMenuItem onClick={() => router.push('/home/account')}>
             Account
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push('/index/home/feedback')}>
+          <DropdownMenuItem onClick={() => router.push('/home/feedback')}>
             Contact
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setShowAbout(true)}>

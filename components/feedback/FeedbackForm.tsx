@@ -48,7 +48,7 @@ export function FeedbackForm({ userId }: FeedbackFormProps) {
 
     toast.success('Thank you for your feedback!')
     setLoading(false)
-    router.push('/index/home/account')
+    router.push('/home/account')
   }
 
   return (

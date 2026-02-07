@@ -38,7 +38,7 @@ export function DeleteShiftButton({ shiftId }: DeleteShiftButtonProps) {
       }
 
       toast.success('Shift deleted')
-      router.push('/index/shifts/monthly')
+      router.push('/shifts/monthly')
       router.refresh()
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to delete shift')

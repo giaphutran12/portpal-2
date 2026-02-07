@@ -14,7 +14,7 @@ export default function AnalyticsLayout({
   const activeTab = pathname.includes("/journey") ? "journey" : "insights"
 
   const handleTabChange = (value: string) => {
-    router.push(`/index/analytics/${value}`)
+    router.push(`/analytics/${value}`)
   }
 
   return (

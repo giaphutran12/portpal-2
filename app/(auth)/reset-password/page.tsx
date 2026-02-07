@@ -42,7 +42,7 @@ export default function ResetPasswordPage() {
     }
 
     toast.success('Password updated successfully')
-    router.push('/index/home/dashboard')
+    router.push('/home/dashboard')
   }
 
   return (

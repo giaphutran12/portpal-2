@@ -17,7 +17,7 @@ export const selectors = {
   nav: {
     sidebar: '[data-testid="sidebar"], nav',
     menuItems: '[data-testid="menu-item"], nav a',
-    homeLink: 'a[href*="/dashboard"], a[href="/index/home/dashboard"]',
+    homeLink: 'a[href*="/dashboard"], a[href="/home/dashboard"]',
     shiftsLink: 'a[href*="/shifts"]',
     analyticsLink: 'a[href*="/analytics"]',
     goalsLink: 'a[href*="/goals"]',
@@ -58,18 +58,18 @@ export const SHIFT_ENTRY_TYPES = [
  */
 export const ROUTES = {
   signin: '/signin',
-  dashboard: '/index/home/dashboard',
+  dashboard: '/home/dashboard',
   shifts: '/shifts',
   addShift: '/shifts/add',
-  weekly: '/index/shifts/weekly',
-  monthly: '/index/shifts/monthly',
-  yearly: '/index/shifts/yearly',
-  insights: '/index/analytics/insights',
-  journey: '/index/analytics/journey',
+  weekly: '/shifts/weekly',
+  monthly: '/shifts/monthly',
+  yearly: '/shifts/yearly',
+  insights: '/analytics/insights',
+  journey: '/analytics/journey',
   goals: '/goals',
-  posts: '/index/home/posts',
-  feedback: '/index/home/feedback',
-  account: '/index/home/account',
+  posts: '/home/posts',
+  feedback: '/home/feedback',
+  account: '/home/account',
 } as const
 
 /**

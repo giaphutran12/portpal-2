@@ -38,7 +38,7 @@ export function ShiftActions({ id }: ShiftActionsProps) {
       }
 
       toast.success('Shift deleted successfully')
-      router.push('/index/shifts/monthly')
+      router.push('/shifts/monthly')
       router.refresh()
     } catch (error) {
       console.error('Error deleting shift:', error)

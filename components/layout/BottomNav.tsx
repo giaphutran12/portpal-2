@@ -6,11 +6,11 @@ import { Home, Calendar, Plus, BarChart3, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { href: '/index/home/dashboard', icon: Home, label: 'Home' },
-  { href: '/index/shifts/weekly', icon: Calendar, label: 'Shifts' },
+  { href: '/home/dashboard', icon: Home, label: 'Home' },
+  { href: '/shifts/weekly', icon: Calendar, label: 'Shifts' },
   { href: '/shifts/add', icon: Plus, label: 'Add', isCenter: true },
-  { href: '/index/analytics/insights', icon: BarChart3, label: 'Analytics' },
-  { href: '/index/home/account', icon: User, label: 'Account' },
+  { href: '/analytics/insights', icon: BarChart3, label: 'Analytics' },
+  { href: '/home/account', icon: User, label: 'Account' },
 ]
 
 export function BottomNav() {

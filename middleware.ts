@@ -8,7 +8,8 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/',                    // Root redirect
-    '/index/:path*',        // All app pages under /index
+    '/home/:path*',         // All home pages
+    '/analytics/:path*',    // All analytics pages
     '/shifts/:path*',       // All shift pages
     '/goals/:path*',        // All goal pages
   ],

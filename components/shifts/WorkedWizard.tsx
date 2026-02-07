@@ -147,7 +147,7 @@ export function WorkedWizard({ jobs, locations }: WorkedWizardProps) {
       }
 
       toast.success('Shift added successfully!')
-      router.push('/index/shifts/weekly')
+      router.push('/shifts/weekly')
     } catch (error) {
       console.error('[WorkedWizard] Submit error:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to add shift')

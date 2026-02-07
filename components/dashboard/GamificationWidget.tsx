@@ -10,7 +10,7 @@ interface GamificationWidgetProps {
 
 export function GamificationWidget({ streak, points, xp }: GamificationWidgetProps) {
   return (
-    <Link href="/index/analytics/journey" className="block mb-6">
+    <Link href="/analytics/journey" className="block mb-6">
       <Card className="bg-gradient-to-r from-slate-50 to-slate-100 hover:shadow-md transition-all cursor-pointer border-slate-200">
         <CardContent className="flex items-center justify-between py-4 px-6">
           <div className="flex items-center gap-2">

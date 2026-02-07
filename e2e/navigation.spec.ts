@@ -12,7 +12,7 @@ test.describe('Navigation', () => {
   })
 
   test.describe('Protected Routes - Dashboard Section', () => {
-    test('should load or redirect /index/home/dashboard', async ({ page }) => {
+    test('should load or redirect /home/dashboard', async ({ page }) => {
       await page.goto(ROUTES.dashboard)
       await waitForPageLoad(page)
       
@@ -21,7 +21,7 @@ test.describe('Navigation', () => {
       expect(isValidDestination).toBeTruthy()
     })
 
-    test('should load or redirect /index/home/posts', async ({ page }) => {
+    test('should load or redirect /home/posts', async ({ page }) => {
       await page.goto(ROUTES.posts)
       await waitForPageLoad(page)
       
@@ -30,7 +30,7 @@ test.describe('Navigation', () => {
       expect(isValidDestination).toBeTruthy()
     })
 
-    test('should load or redirect /index/home/feedback', async ({ page }) => {
+    test('should load or redirect /home/feedback', async ({ page }) => {
       await page.goto(ROUTES.feedback)
       await waitForPageLoad(page)
       
@@ -39,7 +39,7 @@ test.describe('Navigation', () => {
       expect(isValidDestination).toBeTruthy()
     })
 
-    test('should load or redirect /index/home/account', async ({ page }) => {
+    test('should load or redirect /home/account', async ({ page }) => {
       await page.goto(ROUTES.account)
       await waitForPageLoad(page)
       
@@ -68,7 +68,7 @@ test.describe('Navigation', () => {
       expect(isValidDestination).toBeTruthy()
     })
 
-    test('should load or redirect /index/shifts/weekly', async ({ page }) => {
+    test('should load or redirect /shifts/weekly', async ({ page }) => {
       await page.goto(ROUTES.weekly)
       await waitForPageLoad(page)
       
@@ -77,7 +77,7 @@ test.describe('Navigation', () => {
       expect(isValidDestination).toBeTruthy()
     })
 
-    test('should load or redirect /index/shifts/monthly', async ({ page }) => {
+    test('should load or redirect /shifts/monthly', async ({ page }) => {
       await page.goto(ROUTES.monthly)
       await waitForPageLoad(page)
       
@@ -86,7 +86,7 @@ test.describe('Navigation', () => {
       expect(isValidDestination).toBeTruthy()
     })
 
-    test('should load or redirect /index/shifts/yearly', async ({ page }) => {
+    test('should load or redirect /shifts/yearly', async ({ page }) => {
       await page.goto(ROUTES.yearly)
       await waitForPageLoad(page)
       
@@ -97,7 +97,7 @@ test.describe('Navigation', () => {
   })
 
   test.describe('Protected Routes - Analytics Section', () => {
-    test('should load or redirect /index/analytics/insights', async ({ page }) => {
+    test('should load or redirect /analytics/insights', async ({ page }) => {
       await page.goto(ROUTES.insights)
       await waitForPageLoad(page)
       
@@ -106,7 +106,7 @@ test.describe('Navigation', () => {
       expect(isValidDestination).toBeTruthy()
     })
 
-    test('should load or redirect /index/analytics/journey', async ({ page }) => {
+    test('should load or redirect /analytics/journey', async ({ page }) => {
       await page.goto(ROUTES.journey)
       await waitForPageLoad(page)
       

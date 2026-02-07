@@ -55,7 +55,7 @@ export default function SignInPage() {
 
       console.log('[AUTH] Sign in successful, redirecting...')
       toast.success('Signed in successfully!')
-      router.push('/index/home/dashboard')
+      router.push('/home/dashboard')
       router.refresh()
     } catch (err) {
       console.error('[AUTH] Unexpected error during sign in:', err)
@@ -119,7 +119,7 @@ export default function SignInPage() {
         if (data.session) {
           console.log('[AUTH] Session created, redirecting to dashboard')
           toast.success('Account created! Redirecting...')
-          router.push('/index/home/dashboard')
+          router.push('/home/dashboard')
           router.refresh()
         } else {
           console.log('[AUTH] Email confirmation required')

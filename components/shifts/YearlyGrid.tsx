@@ -35,7 +35,7 @@ export function YearlyGrid({ currentDate, shifts }: YearlyGridProps) {
   }
 
   const handleMonthClick = (month: Date) => {
-    router.push(`/index/shifts/monthly?date=${format(month, 'yyyy-MM-dd')}`)
+    router.push(`/shifts/monthly?date=${format(month, 'yyyy-MM-dd')}`)
   }
 
   const shiftsByMonth = useMemo(() => {

@@ -17,7 +17,7 @@ export default function ShiftsLayout({ children }: { children: React.ReactNode }
         <h1 className="text-2xl font-bold tracking-tight">Shifts Calendar</h1>
       </div>
       
-      <Tabs value={currentTab} onValueChange={(val) => router.push(`/index/shifts/${val}`)} className="w-full">
+      <Tabs value={currentTab} onValueChange={(val) => router.push(`/shifts/${val}`)} className="w-full">
         <TabsList className="grid w-full grid-cols-3 max-w-full sm:max-w-[400px]">
           <TabsTrigger value="weekly" className="text-xs sm:text-sm">Weekly</TabsTrigger>
           <TabsTrigger value="monthly" className="text-xs sm:text-sm">Monthly</TabsTrigger>
