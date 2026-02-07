@@ -33,11 +33,26 @@ export const createShiftSchema = z.object({
 export const updateShiftSchema = createShiftSchema.partial()
 
 export const updateProfileSchema = z.object({
-  first_name: z.string().optional(),
-  last_name: z.string().optional(),
-  ilwu_local: z.enum(['500', '502', 'Other']).optional(),
-  board: z.enum(['A BOARD', 'B BOARD', 'C BOARD', 'T BOARD', '00 BOARD', 'R BOARD', 'UNION']).optional(),
-  theme_preference: z.enum(['dark', 'light', 'system']).optional(),
+  first_name: z.preprocess(
+    (v) => (v === '' || v === null ? undefined : v),
+    z.string().optional()
+  ),
+  last_name: z.preprocess(
+    (v) => (v === '' || v === null ? undefined : v),
+    z.string().optional()
+  ),
+  ilwu_local: z.preprocess(
+    (v) => (v === '' || v === null ? undefined : v),
+    z.enum(['500', '502', 'Other']).optional()
+  ),
+  board: z.preprocess(
+    (v) => (v === '' || v === null ? undefined : v),
+    z.enum(['A BOARD', 'B BOARD', 'C BOARD', 'T BOARD', '00 BOARD', 'R BOARD', 'UNION']).optional()
+  ),
+  theme_preference: z.preprocess(
+    (v) => (v === '' || v === null ? undefined : v),
+    z.enum(['dark', 'light', 'system']).optional()
+  ),
   sick_days_available: z.number().optional(),
   sick_days_used: z.number().optional(),
   sick_leave_start: z.string().regex(dateRegex, 'Invalid date format (YYYY-MM-DD)').optional(),
@@ -59,11 +74,11 @@ export const goalKinds = ['earnings', 'hours', 'shifts', 'pension'] as const
 
 export const createGoalSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
-  type: z.enum(goalTypes),
+  goal_type: z.enum(goalTypes),
   kind: z.enum(goalKinds),
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format'),
-  target_value: z.number().min(0, 'Target must be positive'),
+  target: z.number().min(0, 'Target must be positive'),
 })
 
 export const updateGoalSchema = createGoalSchema.partial()

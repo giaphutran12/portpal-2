@@ -22,11 +22,11 @@ import { toast } from 'sonner'
 interface Goal {
   id?: string
   name: string
-  type: 'weekly' | 'monthly' | 'yearly'
+  goal_type: 'weekly' | 'monthly' | 'yearly'
   kind: 'earnings' | 'hours' | 'shifts' | 'pension'
   start_date: string
   end_date: string
-  target_value: number
+  target: number
 }
 
 interface GoalFormProps {
@@ -59,7 +59,7 @@ export function GoalForm({ goal, mode }: GoalFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   
   const [name, setName] = useState(goal?.name ?? '')
-  const [type, setType] = useState<Goal['type']>(goal?.type ?? 'monthly')
+  const [type, setType] = useState<Goal['goal_type']>(goal?.goal_type ?? 'monthly')
   const [kind, setKind] = useState<Goal['kind']>(goal?.kind ?? 'earnings')
   const [startDate, setStartDate] = useState<Date | undefined>(
     goal?.start_date ? new Date(goal.start_date) : new Date()
@@ -67,7 +67,7 @@ export function GoalForm({ goal, mode }: GoalFormProps) {
   const [endDate, setEndDate] = useState<Date | undefined>(
     goal?.end_date ? new Date(goal.end_date) : undefined
   )
-  const [targetValue, setTargetValue] = useState(goal?.target_value?.toString() ?? '')
+  const [targetValue, setTargetValue] = useState(goal?.target?.toString() ?? '')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -90,11 +90,11 @@ export function GoalForm({ goal, mode }: GoalFormProps) {
     try {
       const payload = {
         name: name.trim(),
-        type,
+        goal_type: type,
         kind,
         start_date: format(startDate, 'yyyy-MM-dd'),
         end_date: format(endDate, 'yyyy-MM-dd'),
-        target_value: Number(targetValue),
+        target: Number(targetValue),
       }
 
       const url = mode === 'create' ? '/api/goals' : `/api/goals/${goal?.id}`
@@ -136,7 +136,7 @@ export function GoalForm({ goal, mode }: GoalFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Goal Type</Label>
-          <Select value={type} onValueChange={(v) => setType(v as Goal['type'])}>
+          <Select value={type} onValueChange={(v) => setType(v as Goal['goal_type'])}>
             <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>

@@ -10,11 +10,11 @@ import { format } from 'date-fns'
 interface Goal {
   id: string
   name: string
-  type: 'weekly' | 'monthly' | 'yearly'
+  goal_type: 'weekly' | 'monthly' | 'yearly'
   kind: 'earnings' | 'hours' | 'shifts' | 'pension'
   start_date: string
   end_date: string
-  target_value: number
+  target: number
   current_value: number
 }
 
@@ -22,7 +22,7 @@ interface GoalCardProps {
   goal: Goal
 }
 
-const typeLabels: Record<Goal['type'], string> = {
+const typeLabels: Record<Goal['goal_type'], string> = {
   weekly: 'Weekly',
   monthly: 'Monthly',
   yearly: 'Yearly',
@@ -68,7 +68,7 @@ export function GoalCard({ goal }: GoalCardProps) {
             </div>
             <div className="flex gap-1.5 shrink-0">
               <Badge variant="secondary" className="text-[10px] px-1.5">
-                {typeLabels[goal.type]}
+                {typeLabels[goal.goal_type]}
               </Badge>
               <Badge variant="outline" className="text-[10px] px-1.5">
                 {kindLabels[goal.kind]}
@@ -78,7 +78,7 @@ export function GoalCard({ goal }: GoalCardProps) {
           
           <GoalProgress
             currentValue={goal.current_value}
-            targetValue={goal.target_value}
+            targetValue={goal.target}
             kind={goal.kind}
             size="sm"
             showLabel={true}

@@ -26,16 +26,16 @@ import { toast } from 'sonner'
 interface Goal {
   id: string
   name: string
-  type: 'weekly' | 'monthly' | 'yearly'
+  goal_type: 'weekly' | 'monthly' | 'yearly'
   kind: 'earnings' | 'hours' | 'shifts' | 'pension'
   start_date: string
   end_date: string
-  target_value: number
+  target: number
   current_value: number
   created_at: string
 }
 
-const typeLabels: Record<Goal['type'], string> = {
+const typeLabels: Record<Goal['goal_type'], string> = {
   weekly: 'Weekly',
   monthly: 'Monthly',
   yearly: 'Yearly',
@@ -175,7 +175,7 @@ export default function GoalDetailPage() {
                 Progress
               </CardTitle>
               <div className="flex gap-1.5">
-                <Badge variant="secondary">{typeLabels[goal.type]}</Badge>
+                <Badge variant="secondary">{typeLabels[goal.goal_type]}</Badge>
                 <Badge variant="outline">{kindLabels[goal.kind]}</Badge>
               </div>
             </div>
@@ -183,7 +183,7 @@ export default function GoalDetailPage() {
           <CardContent>
             <GoalProgress
               currentValue={goal.current_value}
-              targetValue={goal.target_value}
+              targetValue={goal.target}
               kind={goal.kind}
             />
           </CardContent>
