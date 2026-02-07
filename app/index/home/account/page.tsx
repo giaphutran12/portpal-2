@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTheme } from 'next-themes'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,6 +35,7 @@ interface PasswordForm {
 
 export default function AccountPage() {
   const router = useRouter()
+  const { setTheme } = useTheme()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [user, setUser] = useState<UserProfile | null>(null)
@@ -115,14 +117,14 @@ export default function AccountPage() {
 
       const updatedProfile = await response.json()
 
-      setUser(updatedProfile)
-      setFormData(updatedProfile)
-      setOriginalData(updatedProfile)
+       setUser(updatedProfile)
+       setFormData(updatedProfile)
+       setOriginalData(updatedProfile)
 
-      // Apply theme preference
-      applyTheme(updatedProfile.theme_preference)
+       // Apply theme preference
+       setTheme(updatedProfile.theme_preference)
 
-      toast.success('Profile updated successfully')
+       toast.success('Profile updated successfully')
     } catch (error) {
       toast.error('Error saving profile')
       console.error(error)
@@ -180,23 +182,7 @@ export default function AccountPage() {
     }
   }
 
-  const applyTheme = (theme: string) => {
-    const html = document.documentElement
-    if (theme === 'dark') {
-      html.classList.add('dark')
-    } else if (theme === 'light') {
-      html.classList.remove('dark')
-    } else if (theme === 'system') {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-      if (prefersDark) {
-        html.classList.add('dark')
-      } else {
-        html.classList.remove('dark')
-      }
-    }
-  }
-
-  if (loading) {
+   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header email={user?.email} firstName={user?.first_name} lastName={user?.last_name} />
@@ -318,21 +304,24 @@ export default function AccountPage() {
               <CardDescription>Customize your experience</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="theme">Theme</Label>
-                <Select value={formData.theme_preference || 'system'} onValueChange={(value) => handleInputChange('theme_preference', value)}>
-                  <SelectTrigger id="theme">
-                    <SelectValue placeholder="Select theme" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {THEMES.map((theme) => (
-                      <SelectItem key={theme} value={theme}>
-                        {theme.charAt(0).toUpperCase() + theme.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+               <div className="space-y-2">
+                 <Label htmlFor="theme">Theme</Label>
+                 <Select value={formData.theme_preference || 'system'} onValueChange={(value) => {
+                   handleInputChange('theme_preference', value)
+                   setTheme(value)
+                 }}>
+                   <SelectTrigger id="theme">
+                     <SelectValue placeholder="Select theme" />
+                   </SelectTrigger>
+                   <SelectContent>
+                     {THEMES.map((theme) => (
+                       <SelectItem key={theme} value={theme}>
+                         {theme.charAt(0).toUpperCase() + theme.slice(1)}
+                       </SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+               </div>
             </CardContent>
           </Card>
 
