@@ -305,6 +305,108 @@ main()
 
 ---
 
+### 7. Logging-First Development (MANDATORY)
+
+**Every feature MUST be built with structured logging from the start — not added after bugs appear.**
+
+#### Philosophy: Log First, Delete Later
+
+| Phase | What to Do |
+|-------|-----------|
+| **Building** | Add structured logs at every critical path (DB queries, auth, API calls, data transforms) |
+| **Testing** | Use logs to verify behavior — faster than stepping through debugger |
+| **Stable (100% confident)** | Remove verbose debug logs, keep info/warn/error logs permanently |
+
+**NEVER wait for a bug to start adding logs. By then you've already lost context.**
+
+#### Server-Side Logging (API Routes, Server Components, Middleware)
+
+**Always use structured `console.log` with a prefix tag and contextual data:**
+
+```typescript
+// ✅ CORRECT — Structured, tagged, with context
+console.log('[SHIFT-API] Creating shift', { userId, shiftType, date })
+console.log('[SHIFT-API] Supabase query completed', { rowCount: data?.length, durationMs: Date.now() - start })
+console.warn('[SHIFT-API] Missing optional field', { field: 'notes', userId })
+console.error('[SHIFT-API] Failed to create shift', { error: error.message, userId, shiftType })
+
+// ❌ WRONG — No context, impossible to debug in production
+console.log('shift created')
+console.log(data)
+console.error(error)
+```
+
+**Tag naming convention:** `[FEATURE-SCOPE]`
+- `[AUTH]` — Authentication, session, middleware
+- `[SHIFT-API]` — Shift CRUD operations
+- `[DASHBOARD]` — Dashboard data fetching
+- `[PAY-CALC]` — Pay calculations
+- `[PERF]` — Performance timing (keep permanently)
+
+**What to log on the server:**
+
+| Event | Log Level | Example |
+|-------|-----------|---------|
+| API route entry | `log` | `[SHIFT-API] POST /api/shifts called` with userId |
+| DB query result | `log` | `[SHIFT-API] Query returned N rows in Xms` |
+| Validation failure | `warn` | `[SHIFT-API] Validation failed` with details |
+| Auth failure | `warn` | `[AUTH] Unauthorized access attempt` with route |
+| Unexpected error | `error` | `[SHIFT-API] Unhandled error` with stack |
+| Performance timing | `log` | `[PERF] Dashboard total: Xms` |
+
+#### Client-Side Error Reporting (Internal Tool Pattern)
+
+**Since PortPal is an internal tool used by longshoremen, NOT a public SaaS app:**
+
+Users should see **friendly error messages with error codes** — not raw stack traces. But provide a way for them to copy error details for bug reports.
+
+```typescript
+// ✅ CORRECT — User-friendly message + copyable error details for internal tool
+try {
+  const result = await createShift(data)
+} catch (error) {
+  // Show user-friendly toast with error code
+  toast.error('Failed to save shift. Error code: SHIFT-001. Please try again or contact support.')
+  
+  // Log full details to console (internal users can open DevTools if needed)
+  console.error('[SHIFT] Error creating shift', { 
+    errorCode: 'SHIFT-001',
+    message: error.message, 
+    userId, 
+    shiftData: data 
+  })
+}
+
+// ❌ WRONG — Showing raw error to user
+toast.error(error.message)  // "TypeError: Cannot read properties of undefined"
+toast.error('Something went wrong')  // No error code, impossible to trace
+```
+
+**Error code convention:** `FEATURE-NNN`
+- `AUTH-001` through `AUTH-099` — Authentication errors
+- `SHIFT-001` through `SHIFT-099` — Shift operation errors
+- `PAY-001` through `PAY-099` — Pay calculation errors
+- `PROFILE-001` through `PROFILE-099` — Profile/account errors
+
+**Why error codes for internal tools:**
+- User screenshots toast → you immediately know what code path failed
+- Searchable in server logs — correlate client error code with server log
+- No sensitive data leaked to the UI
+- User doesn't need to understand technical errors
+- Way better than "please open DevTools and screenshot the console"
+
+#### What to Keep vs Delete
+
+| Keep Permanently | Delete When Stable |
+|-----------------|-------------------|
+| `[PERF]` timing logs | Verbose `[DEBUG]` step-by-step logs |
+| `console.error` for unexpected failures | `console.log` for expected happy-path data shapes |
+| `console.warn` for validation/auth issues | `console.log` for "entering function X" |
+| Error codes in toast messages | Temporary investigation logs |
+| API entry/exit with timing | Intermediate variable dumps |
+
+---
+
 ## Teaching Mode: Stack Traces & Debugging
 
 **When errors occur, ALWAYS explain stack traces to teach the user debugging skills.**
