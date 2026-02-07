@@ -50,3 +50,6 @@ next-env.d.ts
 
 # sensitive docs
 backup-doc.md
+
+# agent working files
+.sisyphus/
