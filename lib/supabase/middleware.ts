@@ -25,9 +25,13 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
+  const startTime = performance.now()
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  const endTime = performance.now()
+  const duration = Math.round(endTime - startTime)
+  console.log(`[PERF] middleware getUser(): ${duration}ms (path: ${request.nextUrl.pathname})`)
 
   // Redirect unauthenticated users to signin (except public routes)
   const publicRoutes = ['/signin', '/signup', '/reset-password', '/auth/callback']

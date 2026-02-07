@@ -7,6 +7,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|sw\\.js|offline\\.html|manifest\\.webmanifest|icon-.*\\.png|screenshot-.*\\.png|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/',                    // Root redirect
+    '/index/:path*',        // All app pages under /index
+    '/shifts/:path*',       // All shift pages
+    '/goals/:path*',        // All goal pages
   ],
 }
