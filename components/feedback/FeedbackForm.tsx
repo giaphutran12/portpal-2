@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,6 +16,7 @@ interface FeedbackFormProps {
 }
 
 export function FeedbackForm({ userId }: FeedbackFormProps) {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [ilwuLocal, setIlwuLocal] = useState('')
   const [comments, setComments] = useState('')
@@ -45,9 +47,8 @@ export function FeedbackForm({ userId }: FeedbackFormProps) {
     }
 
     toast.success('Thank you for your feedback!')
-    setIlwuLocal('')
-    setComments('')
-    setAnonymous(false)
+    setLoading(false)
+    router.push('/index/home/account')
   }
 
   return (
