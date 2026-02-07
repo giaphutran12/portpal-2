@@ -67,42 +67,42 @@ export function EarningsCards({ thisWeek, lastWeek, thisYear }: EarningsCardsPro
         </CardContent>
       </Card>
 
-      <Card className="bg-slate-50 border-slate-200">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-slate-500 uppercase tracking-wide">
-            This Year (Fiscal)
-          </CardTitle>
-          <div className="text-xs text-slate-400">{thisYear.range}</div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold mb-2 text-slate-900">{formatCurrency(thisYear.earnings)}</div>
-          <div className="flex justify-between text-sm mb-3">
-            <div className="flex flex-col">
-              <span className="text-slate-500 text-xs">Shifts</span>
-              <span className="font-medium text-slate-700">{thisYear.shifts}</span>
-            </div>
-            <div className="flex flex-col text-right">
-              <span className="text-slate-500 text-xs">Hours</span>
-              <span className="font-medium text-slate-700">{thisYear.hours}</span>
-            </div>
-          </div>
-          
-          {thisYear.pension !== undefined && (
-            <>
-              <Separator className="my-2" />
-              <div className="flex justify-between items-center pt-1">
-                <span className="text-xs font-medium text-slate-600">Pension</span>
-                <div className="text-right">
-                  <span className="text-sm font-bold text-slate-800">{formatCurrency(thisYear.pension)}</span>
-                  {thisYear.pensionPercentage && (
-                    <span className="text-xs text-slate-400 ml-1">({thisYear.pensionPercentage}%)</span>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+      <Card className="bg-muted border-border">
+         <CardHeader className="pb-2">
+           <CardTitle className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
+             This Year (Fiscal)
+           </CardTitle>
+           <div className="text-xs text-muted-foreground">{thisYear.range}</div>
+         </CardHeader>
+         <CardContent>
+           <div className="text-2xl font-bold mb-2 text-foreground">{formatCurrency(thisYear.earnings)}</div>
+           <div className="flex justify-between text-sm mb-3">
+             <div className="flex flex-col">
+               <span className="text-muted-foreground text-xs">Shifts</span>
+               <span className="font-medium text-foreground">{thisYear.shifts}</span>
+             </div>
+             <div className="flex flex-col text-right">
+               <span className="text-muted-foreground text-xs">Hours</span>
+               <span className="font-medium text-foreground">{thisYear.hours}</span>
+             </div>
+           </div>
+           
+           {thisYear.pension !== undefined && (
+             <>
+               <Separator className="my-2" />
+               <div className="flex justify-between items-center pt-1">
+                 <span className="text-xs font-medium text-muted-foreground">Pension</span>
+                 <div className="text-right">
+                   <span className="text-sm font-bold text-foreground">{formatCurrency(thisYear.pension)}</span>
+                   {thisYear.pensionPercentage && (
+                     <span className="text-xs text-muted-foreground ml-1">({thisYear.pensionPercentage}%)</span>
+                   )}
+                 </div>
+               </div>
+             </>
+           )}
+         </CardContent>
+       </Card>
     </div>
   )
 }

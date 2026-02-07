@@ -41,8 +41,8 @@ export function YearlyGoalWidget({ currentEarnings, initialGoal = 120000 }: Year
 
   return (
     <div className="mb-8 space-y-2">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-lg font-semibold text-slate-800">Yearly Goal</h2>
+       <div className="flex items-center justify-between mb-2">
+         <h2 className="text-lg font-semibold text-foreground">Yearly Goal</h2>
         {isEditing ? (
           <div className="flex items-center gap-2">
             <Input
@@ -60,18 +60,18 @@ export function YearlyGoalWidget({ currentEarnings, initialGoal = 120000 }: Year
           </div>
         ) : (
           <div 
-            className="flex items-center gap-2 cursor-pointer hover:bg-slate-100 px-2 py-1 rounded-md transition-colors"
+            className="flex items-center gap-2 cursor-pointer hover:bg-muted px-2 py-1 rounded-md transition-colors"
             onClick={() => setIsEditing(true)}
           >
-            <span className="font-medium text-slate-900">{formatCurrency(goal)}</span>
-            <Pencil className="h-3 w-3 text-slate-400" />
+            <span className="font-medium text-foreground">{formatCurrency(goal)}</span>
+            <Pencil className="h-3 w-3 text-muted-foreground" />
           </div>
         )}
       </div>
 
-      <Progress value={progressPercentage} className="h-3 bg-slate-100" />
+       <Progress value={progressPercentage} className="h-3 bg-muted" />
       
-      <div className="flex justify-between text-xs text-slate-500 mt-1">
+       <div className="flex justify-between text-xs text-muted-foreground mt-1">
         <span>{formatCurrency(currentEarnings)} earned</span>
         <span>{Math.round(progressPercentage)}%</span>
       </div>

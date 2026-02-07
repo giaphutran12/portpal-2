@@ -18,14 +18,14 @@ export function GamificationWidget({ streak, points, xp }: GamificationWidgetPro
             <span className="font-semibold text-sm sm:text-base">{streak} Day Streak</span>
           </div>
           
-          <div className="h-6 w-px bg-slate-200 mx-2" />
+          <div className="h-6 w-px bg-border mx-2" />
           
           <div className="flex items-center gap-2">
             <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
             <span className="font-semibold text-sm sm:text-base">Points - {points}</span>
           </div>
           
-          <div className="h-6 w-px bg-slate-200 mx-2" />
+          <div className="h-6 w-px bg-border mx-2" />
           
           <div className="flex items-center gap-2">
             <Trophy className="h-5 w-5 text-blue-500" />

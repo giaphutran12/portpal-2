@@ -27,7 +27,7 @@ export function HolidaysSection({ upcomingHolidays, pastHolidays }: HolidaysSect
   const HolidayItem = ({ holiday }: { holiday: Holiday }) => (
     <div className="flex items-center justify-between py-3 border-b last:border-0">
       <div className="flex items-start gap-3">
-        <div className={`mt-1 p-1.5 rounded-full ${holiday.isQualified ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'}`}>
+        <div className={`mt-1 p-1.5 rounded-full ${holiday.isQualified ? 'bg-green-100 text-green-600' : 'bg-muted text-muted-foreground'}`}>
           {holiday.isQualified ? <CheckCircle2 className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
         </div>
         <div>
@@ -39,7 +39,7 @@ export function HolidaysSection({ upcomingHolidays, pastHolidays }: HolidaysSect
         </div>
       </div>
       <div className="text-right">
-        <div className={`text-sm font-semibold ${holiday.daysWorked >= holiday.daysRequired ? 'text-green-600' : 'text-slate-600'}`}>
+        <div className={`text-sm font-semibold ${holiday.daysWorked >= holiday.daysRequired ? 'text-green-600' : 'text-muted-foreground'}`}>
           {holiday.daysWorked}/{holiday.daysRequired}
         </div>
         <div className="text-[10px] text-muted-foreground uppercase">Qualified</div>
@@ -61,14 +61,14 @@ export function HolidaysSection({ upcomingHolidays, pastHolidays }: HolidaysSect
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg border shadow-sm px-4">
+      <div className="bg-card rounded-lg border shadow-sm px-4">
         {upcomingHolidays.slice(0, expanded ? undefined : 3).map((holiday) => (
           <HolidayItem key={holiday.id} holiday={holiday} />
         ))}
 
         {expanded && pastHolidays.length > 0 && (
           <>
-            <div className="py-2 bg-slate-50 -mx-4 px-4 border-y font-semibold text-xs text-slate-500 uppercase mt-2">
+            <div className="py-2 bg-muted -mx-4 px-4 border-y font-semibold text-xs text-muted-foreground uppercase mt-2">
               Past Holidays
             </div>
             {pastHolidays.map((holiday) => (

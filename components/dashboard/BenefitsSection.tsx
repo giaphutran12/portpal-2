@@ -46,9 +46,9 @@ export function BenefitsSection({
     const percentage = Math.min(100, Math.max(0, (data.used / data.total) * 100))
     
     return (
-      <div className="bg-white rounded-lg border p-4">
-        <div className="flex justify-between items-start mb-4">
-          <h3 className="font-semibold text-slate-800">{title}</h3>
+      <div className="bg-card rounded-lg border p-4">
+         <div className="flex justify-between items-start mb-4">
+           <h3 className="font-semibold text-card-foreground">{title}</h3>
           <Button 
             variant="ghost" 
             size="sm" 
@@ -59,26 +59,26 @@ export function BenefitsSection({
           </Button>
         </div>
 
-        <div className="flex justify-between text-sm mb-2 text-slate-500">
-          <div className="text-center">
-            <div className="font-bold text-slate-900 text-lg">{data.total}</div>
-            <div className="text-xs">Available</div>
-          </div>
-          <div className="text-center">
-            <div className="font-bold text-slate-900 text-lg">{data.used}</div>
-            <div className="text-xs">Used</div>
-          </div>
-          <div className="text-center">
-            <div className="font-bold text-slate-900 text-lg">{remaining}</div>
-            <div className="text-xs">Remaining</div>
-          </div>
-        </div>
+         <div className="flex justify-between text-sm mb-2 text-muted-foreground">
+           <div className="text-center">
+             <div className="font-bold text-foreground text-lg">{data.total}</div>
+             <div className="text-xs">Available</div>
+           </div>
+           <div className="text-center">
+             <div className="font-bold text-foreground text-lg">{data.used}</div>
+             <div className="text-xs">Used</div>
+           </div>
+           <div className="text-center">
+             <div className="font-bold text-foreground text-lg">{remaining}</div>
+             <div className="text-xs">Remaining</div>
+           </div>
+         </div>
 
         <Progress value={percentage} className="h-2 mb-2" />
         
-        <div className="text-xs text-slate-400 text-right">
-          {percentage.toFixed(0)}% used
-        </div>
+         <div className="text-xs text-muted-foreground text-right">
+           {percentage.toFixed(0)}% used
+         </div>
       </div>
     )
   }
